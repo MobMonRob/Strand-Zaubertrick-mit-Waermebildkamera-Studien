@@ -3,9 +3,7 @@ package de.dhbw.research.human.fade.out.remote;
 import android.os.AsyncTask;
 import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -17,7 +15,7 @@ public class AsyncClient extends AsyncTask<Void, Void, Void> {
 
     private Socket clientSocket;
     //    private ObjectInputStream inputStream;
-    private ObjectOutputStream outputStream;
+    private BufferedOutputStream outputStream;
     private Queue<ThermalImage> thermalImages = new ConcurrentLinkedQueue<ThermalImage>();
     private boolean active = false;
 
@@ -30,7 +28,7 @@ public class AsyncClient extends AsyncTask<Void, Void, Void> {
         try {
             clientSocket = new Socket(ip, port);
 
-            outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
+            outputStream = new BufferedOutputStream(clientSocket.getOutputStream(), 480 * 640 * 6 + 4);
 //            inputStream = new ObjectInputStream(clientSocket.getInputStream());
         } catch (IOException e) {
             System.out.println("Error while starting server:");
@@ -52,12 +50,10 @@ public class AsyncClient extends AsyncTask<Void, Void, Void> {
         new Thread(new Runnable() {
             public void run() {
                 while (active) {
-                    ThermalImage image = thermalImages.poll();
-                    if (image != null) {
-                        try {
-                            outputStream.writeObject(image);
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                    if (outputStream != null) {
+                        ThermalImage image = thermalImages.poll();
+                        if (image != null) {
+                            image.send(outputStream);
                         }
                     }
                 }

@@ -1,12 +1,14 @@
 package de.dhbw.research.human.fade.out.remote;
 
 import java.awt.image.BufferedImage;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.sql.Array;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import android.graphics.Bitmap;
 import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
@@ -22,12 +24,13 @@ public class Server {
     private boolean hasConnection;
     private ServerSocket serverSocket;
     private Socket clientSocket;
-    private ObjectInputStream inputStream;
+    private BufferedInputStream inputStream;
 //    private ObjectOutputStream outputStream;
 
     public Server(int port) {
         this.port = port;
         previewFrame = new PreviewFrame();
+        previewFrame.setVisible(true);
     }
 
     public void start() {
@@ -36,17 +39,50 @@ public class Server {
             clientSocket = serverSocket.accept();
 
 //            outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
-            inputStream = new ObjectInputStream(clientSocket.getInputStream());
+            inputStream = new BufferedInputStream(clientSocket.getInputStream(), 480 * 640 * 6 + 4);
 
-            previewFrame.setVisible(true);
             hasConnection = true;
+            int width, height;
+            int[] thermalData, visualData;
+            byte[] header = new byte[4];
             while (hasConnection) {
                 try {
-                    ThermalImage nextImage = (ThermalImage) inputStream.readObject();
-                    System.out.println("Received image");
-                    BufferedImage bufferedImage = toImage(nextImage);
-                    previewFrame.updatePreview(bufferedImage);
+                    if (inputStream.read(header) != -1)
+                    {
+                        width = ByteBuffer.wrap(header, 0, 2).getShort();
+                        height = ByteBuffer.wrap(header, 2, 2).getShort();
+
+                        byte[] thermalDataBytes = new byte[width * height * 2];
+                        byte[] visualDataBytes = new byte[width * height * 4];
+
+                        for (int i = 0; i < thermalDataBytes.length; i++) {
+                            thermalDataBytes[i] = (byte) inputStream.read();
+                        }
+                        for (int i = 0; i < visualDataBytes.length; i++) {
+                            visualDataBytes[i] = (byte) inputStream.read();
+                        }
+
+//                        int receivedThermalData = inputStream.read(thermalDataBytes);
+//                        int receivedVisualData = inputStream.read(visualDataBytes);
+
+                        final ByteBuffer wrappedThermalData = ByteBuffer.wrap(thermalDataBytes);
+                        final ByteBuffer wrappedVisualData = ByteBuffer.wrap(visualDataBytes);
+                        thermalData = new int[width * height];
+                        visualData = new int[width * height];
+                        for (int i = 0; i < width * height; i++) {
+                            thermalData[i] = wrappedThermalData.getShort();
+                            visualData[i] = wrappedVisualData.getInt();
+                        }
+
+                        ThermalImage nextImage = new ThermalImage(width, height, thermalData, visualData);
+
+//                    ThermalImage nextImage = (ThermalImage) inputStream.readObject();
+//                    System.out.println("Received image");
+                        BufferedImage bufferedImage = toImage(nextImage);
+                        previewFrame.updatePreview(bufferedImage);
 //                this.send(nextImage);
+                    }
+
                 } catch (EOFException e) {
                     System.out.println("Connection closed by client");
                     hasConnection = false;
@@ -55,8 +91,6 @@ public class Server {
             }
         } catch (IOException e) {
             System.out.println("Error while starting server:");
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
     }

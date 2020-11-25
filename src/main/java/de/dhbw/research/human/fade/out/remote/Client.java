@@ -1,61 +1,32 @@
 package de.dhbw.research.human.fade.out.remote;
 
-import android.graphics.Bitmap;
 import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class Client {
 
     private String ip;
     private int port;
 
-    private ImageReceivedHandler imageReceivedHandler;
-
-    private boolean keepRunning = true;
     private Socket clientSocket;
-    private ObjectInputStream inputStream;
-    private ObjectOutputStream outputStream;
-
-    public Client(String ip, int port, ImageReceivedHandler imageReceivedHandler) {
-        this(ip, port);
-        this.imageReceivedHandler = imageReceivedHandler;
-    }
+    private BufferedOutputStream outputStream;
 
     public Client(String ip, int port) {
         this.ip = ip;
         this.port = port;
     }
 
-    public void setImageReceivedHandler(ImageReceivedHandler imageReceivedHandler) {
-        this.imageReceivedHandler = imageReceivedHandler;
-    }
-
     public void startConnection() {
         try {
             clientSocket = new Socket(ip, port);
 
-            outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
-            inputStream = new ObjectInputStream(clientSocket.getInputStream());
-
-            new Thread(new Runnable() {
-                public void run() {
-                    while (keepRunning) {
-                        try {
-                            Bitmap image = (Bitmap) inputStream.readObject();
-                            System.out.println("Received image");
-                            imageReceivedHandler.onImageReceived(image);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (ClassNotFoundException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            });
+            outputStream = new BufferedOutputStream(clientSocket.getOutputStream());
 
         } catch (IOException e) {
             System.out.println("Error while starting server:");
@@ -64,9 +35,8 @@ public class Client {
     }
 
     public void stopConnection() {
-        keepRunning = false;
         try {
-            inputStream.close();
+            outputStream.flush();
             outputStream.close();
             clientSocket.close();
         } catch (IOException e) {
@@ -76,21 +46,31 @@ public class Client {
     }
 
     public void send(ThermalImage image) {
-        try {
-            outputStream.writeObject(image);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public interface ImageReceivedHandler {
-        void onImageReceived(Bitmap image);
+        image.send(outputStream);
     }
 
     public static void main(String[] args) {
         Client client = new Client("localhost", 4444);
         client.startConnection();
-        client.send(new ThermalImage(1, 1, new int[]{0}, new int[]{0xff0000}));
+
+        int[] thermalData = new int[307200];
+        Arrays.fill(thermalData, 1);
+        int[] visualData = new int[307200];
+        Arrays.fill(visualData, 0xff0000);
+        client.send(new ThermalImage(480, 640, thermalData, visualData));
+        client.send(new ThermalImage(480, 640, thermalData, visualData));
+        client.send(new ThermalImage(480, 640, thermalData, visualData));
+        client.send(new ThermalImage(480, 640, thermalData, visualData));
+        client.send(new ThermalImage(480, 640, thermalData, visualData));
+
+        visualData = new int[307200];
+        Arrays.fill(visualData, 0x00ff00);
+        client.send(new ThermalImage(480, 640, thermalData, visualData));
+        client.send(new ThermalImage(480, 640, thermalData, visualData));
+        client.send(new ThermalImage(480, 640, thermalData, visualData));
+        client.send(new ThermalImage(480, 640, thermalData, visualData));
+        client.send(new ThermalImage(480, 640, thermalData, visualData));
+
         client.stopConnection();
     }
 }
