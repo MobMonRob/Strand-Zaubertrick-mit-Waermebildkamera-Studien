@@ -1,14 +1,12 @@
 package de.dhbw.research.human.fade.out.remote.dto;
 
-import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channel;
-import java.nio.channels.Channels;
-import java.nio.channels.WritableByteChannel;
-import java.util.Arrays;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 // Size 2.457.784 Byte
-public class ThermalImage implements Transmissible {
+public class ThermalImage implements Serializable {
 
     private int width;
     private int height;
@@ -38,21 +36,30 @@ public class ThermalImage implements Transmissible {
         return visualData;
     }
 
-    public void send(BufferedOutputStream outputStream) {
-        ByteBuffer buffer =  ByteBuffer.allocate(4 + thermalData.length * 2 + visualData.length * 4);
-        buffer.putShort((short) width);
-        buffer.putShort((short) height);
+    private void writeObject(ObjectOutputStream aOutputStream) throws IOException {
+        aOutputStream.writeShort((short) width);
+        aOutputStream.writeShort((short) height);
         for (int thermalValue : thermalData) {
-            buffer.putShort((short)thermalValue);
+            aOutputStream.writeShort((short) thermalValue);
         }
         for (int visualPixel : visualData) {
-            buffer.putInt(visualPixel);
+            aOutputStream.writeInt(visualPixel);
+        }
+    }
+
+    private void readObject(ObjectInputStream aInputStream) throws IOException {
+        width = aInputStream.readShort();
+        height = aInputStream.readShort();
+
+        thermalData = new int[width * height];
+
+        for (int i = 0; i < thermalData.length; i++) {
+            thermalData[i] = aInputStream.readShort();
         }
 
-        try {
-            outputStream.write(buffer.array());
-        } catch (IOException e) {
-            e.printStackTrace();
+        visualData = new int[width * height];
+        for (int i = 0; i < visualData.length; i++) {
+            visualData[i] = aInputStream.readInt();
         }
     }
 }

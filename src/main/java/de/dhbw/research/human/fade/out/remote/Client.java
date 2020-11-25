@@ -2,10 +2,8 @@ package de.dhbw.research.human.fade.out.remote;
 
 import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Arrays;
 
@@ -15,7 +13,7 @@ public class Client {
     private int port;
 
     private Socket clientSocket;
-    private BufferedOutputStream outputStream;
+    private ObjectOutputStream outputStream;
 
     public Client(String ip, int port) {
         this.ip = ip;
@@ -26,7 +24,7 @@ public class Client {
         try {
             clientSocket = new Socket(ip, port);
 
-            outputStream = new BufferedOutputStream(clientSocket.getOutputStream());
+            outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
 
         } catch (IOException e) {
             System.out.println("Error while starting server:");
@@ -46,7 +44,11 @@ public class Client {
     }
 
     public void send(ThermalImage image) {
-        image.send(outputStream);
+        try {
+            outputStream.writeObject(image);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
