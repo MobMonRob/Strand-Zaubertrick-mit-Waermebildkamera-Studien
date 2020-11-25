@@ -2,7 +2,9 @@ package de.dhbw.research.human.fade.out.remote;
 
 import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -73,13 +75,11 @@ public class Server {
 //    }
 
     public BufferedImage toImage(ThermalImage image) {
-        BufferedImage bufferedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
-
-        for (int x = 0; x < image.getWidth(); x++) {
-            for (int y = 0; y < image.getHeight(); y++) {
-                int rgb = image.getVisualData()[x + y * image.getWidth()] & 0xffffff;
-                bufferedImage.setRGB(x, y, rgb);
-            }
+        BufferedImage bufferedImage = null;
+        try {
+            bufferedImage = ImageIO.read(new ByteArrayInputStream(image.getVisualData()));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return bufferedImage;
     }

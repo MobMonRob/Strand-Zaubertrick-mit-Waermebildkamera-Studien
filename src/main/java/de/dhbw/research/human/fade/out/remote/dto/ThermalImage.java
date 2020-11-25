@@ -11,12 +11,14 @@ public class ThermalImage implements Serializable {
     private int width;
     private int height;
     private int[] thermalData;
-    private int[] visualData;
+    private int length;
+    private byte[] visualData;
 
-    public ThermalImage(int width, int height, int[] thermalData, int[] visualData) {
+    public ThermalImage(int width, int height, int[] thermalData, byte[] visualData) {
         this.width = width;
         this.height = height;
         this.thermalData = thermalData;
+        this.length = visualData.length;
         this.visualData = visualData;
     }
 
@@ -32,34 +34,34 @@ public class ThermalImage implements Serializable {
         return thermalData;
     }
 
-    public int[] getVisualData() {
+    public byte[] getVisualData() {
         return visualData;
     }
 
-    private void writeObject(ObjectOutputStream aOutputStream) throws IOException {
-        aOutputStream.writeShort((short) width);
-        aOutputStream.writeShort((short) height);
+    private void writeObject(ObjectOutputStream outputStream) throws IOException {
+        outputStream.writeShort((short) width);
+        outputStream.writeShort((short) height);
         for (int thermalValue : thermalData) {
-            aOutputStream.writeShort((short) thermalValue);
+            outputStream.writeShort((short) thermalValue);
         }
-        for (int visualPixel : visualData) {
-            aOutputStream.writeInt(visualPixel);
-        }
+        outputStream.writeInt(length);
+        outputStream.write(visualData);
     }
 
-    private void readObject(ObjectInputStream aInputStream) throws IOException {
-        width = aInputStream.readShort();
-        height = aInputStream.readShort();
+    private void readObject(ObjectInputStream inputStream) throws IOException {
+        width = inputStream.readShort();
+        height = inputStream.readShort();
 
         thermalData = new int[width * height];
-
         for (int i = 0; i < thermalData.length; i++) {
-            thermalData[i] = aInputStream.readShort();
+            thermalData[i] = inputStream.readShort();
         }
 
-        visualData = new int[width * height];
-        for (int i = 0; i < visualData.length; i++) {
-            visualData[i] = aInputStream.readInt();
+        length = inputStream.readInt();
+
+        visualData = new byte[length];
+        for (int i = 0; i < length; i++) {
+            visualData[i] = inputStream.readByte();
         }
     }
 }

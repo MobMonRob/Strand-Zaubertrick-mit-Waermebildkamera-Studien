@@ -16,7 +16,7 @@ public class AsyncClient extends AsyncTask<Void, Void, Void> {
 
     private Socket clientSocket;
     private ObjectOutputStream outputStream;
-    private Queue<ThermalImage> thermalImages = new ConcurrentLinkedQueue<>();
+    private Queue<ThermalImage> thermalImages = new ConcurrentLinkedQueue<ThermalImage>();
     private boolean active = false;
 
     public AsyncClient(String ip, int port) {

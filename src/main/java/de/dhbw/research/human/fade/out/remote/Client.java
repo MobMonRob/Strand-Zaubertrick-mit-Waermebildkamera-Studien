@@ -2,6 +2,10 @@ package de.dhbw.research.human.fade.out.remote;
 
 import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -51,22 +55,40 @@ public class Client {
         }
     }
 
-    public static void main(String[] args) {
+    private static BufferedImage createDummyImage(int color) {
+        BufferedImage bufferedImage = new BufferedImage(480 , 640, BufferedImage.TYPE_INT_RGB);
+
+        for (int x = 0; x < 480; x++) {
+            for (int y = 0; y < 640; y++) {
+                bufferedImage.setRGB(x, y, color);
+            }
+        }
+        return bufferedImage;
+    }
+
+    public static void main(String[] args) throws IOException {
         Client client = new Client("localhost", 4444);
         client.startConnection();
 
         int[] thermalData = new int[307200];
         Arrays.fill(thermalData, 1);
-        int[] visualData = new int[307200];
-        Arrays.fill(visualData, 0xff0000);
+
+        BufferedImage image = createDummyImage(0xff0000);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        ImageIO.write(image, "jpg", stream);
+        byte[] visualData = stream.toByteArray();
+
         client.send(new ThermalImage(480, 640, thermalData, visualData));
         client.send(new ThermalImage(480, 640, thermalData, visualData));
         client.send(new ThermalImage(480, 640, thermalData, visualData));
         client.send(new ThermalImage(480, 640, thermalData, visualData));
         client.send(new ThermalImage(480, 640, thermalData, visualData));
 
-        visualData = new int[307200];
-        Arrays.fill(visualData, 0x00ff00);
+        image = createDummyImage(0x00ff00);
+        stream = new ByteArrayOutputStream();
+        ImageIO.write(image, "jpg", stream);
+        visualData = stream.toByteArray();
+
         client.send(new ThermalImage(480, 640, thermalData, visualData));
         client.send(new ThermalImage(480, 640, thermalData, visualData));
         client.send(new ThermalImage(480, 640, thermalData, visualData));

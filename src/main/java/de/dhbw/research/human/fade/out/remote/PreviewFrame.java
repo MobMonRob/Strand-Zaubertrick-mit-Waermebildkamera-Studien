@@ -23,7 +23,7 @@ public class PreviewFrame extends JFrame {
     @Override
     public void paint(Graphics g) {
         g.drawImage(previewImage, 0, 0, null);
-        super.paint(g);
+//        super.paint(g);
     }
 
     public void updatePreview(BufferedImage previewImage) {
