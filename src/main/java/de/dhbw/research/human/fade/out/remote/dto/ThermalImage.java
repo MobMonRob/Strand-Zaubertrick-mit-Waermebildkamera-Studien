@@ -59,7 +59,6 @@ public class ThermalImage implements Serializable {
         } else {
             ImageIO.write(bufferedImage, "jpg", outputStream);
         }
-        outputStream.flush();
     }
 
     private void readObject(ObjectInputStream inputStream) throws IOException {

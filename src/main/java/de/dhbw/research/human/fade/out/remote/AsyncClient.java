@@ -53,7 +53,7 @@ public class AsyncClient extends AsyncTask<Void, Void, Void> {
                         ThermalImage image = thermalImages.poll();
                         if (image != null) {
                             try {
-                                outputStream.writeObject(image);
+                                outputStream.writeUnshared(image);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }

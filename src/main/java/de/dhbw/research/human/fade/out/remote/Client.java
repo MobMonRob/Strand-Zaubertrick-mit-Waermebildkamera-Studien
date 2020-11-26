@@ -46,7 +46,7 @@ public class Client {
 
     public void send(ThermalImage image) {
         try {
-            outputStream.writeObject(image);
+            outputStream.writeUnshared(image);
         } catch (IOException e) {
             e.printStackTrace();
         }

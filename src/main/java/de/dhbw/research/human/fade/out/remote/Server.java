@@ -37,7 +37,7 @@ public class Server {
                 while (hasConnection) {
                     try {
 
-                        ThermalImage nextImage = (ThermalImage) inputStream.readObject();
+                        ThermalImage nextImage = (ThermalImage) inputStream.readUnshared();
 
                         previewFrame.updatePreview(nextImage.getBufferedImage());
 
