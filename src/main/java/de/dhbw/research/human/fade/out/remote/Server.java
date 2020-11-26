@@ -14,7 +14,6 @@ public class Server {
 
     private PreviewFrame previewFrame;
 
-    private boolean hasConnection;
     private ServerSocket serverSocket;
     private Socket clientSocket;
     private ObjectInputStream inputStream;
@@ -28,24 +27,26 @@ public class Server {
     public void start() {
         try {
             serverSocket = new ServerSocket(port);
-            clientSocket = serverSocket.accept();
+            while (true) {
 
-            inputStream = new ObjectInputStream(clientSocket.getInputStream());
+                clientSocket = serverSocket.accept();
 
-            hasConnection = true;
-            while (hasConnection) {
-                try {
+                inputStream = new ObjectInputStream(clientSocket.getInputStream());
 
-                    ThermalImage nextImage = (ThermalImage) inputStream.readObject();
+                boolean hasConnection = true;
+                while (hasConnection) {
+                    try {
 
-                    previewFrame.updatePreview(nextImage.getBufferedImage());
+                        ThermalImage nextImage = (ThermalImage) inputStream.readObject();
 
-                } catch (EOFException e) {
-                    System.out.println("Connection closed by client");
-                    hasConnection = false;
-                    this.stop();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
+                        previewFrame.updatePreview(nextImage.getBufferedImage());
+
+                    } catch (EOFException e) {
+                        System.out.println("Connection closed by client");
+                        hasConnection = false;
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         } catch (IOException e) {
