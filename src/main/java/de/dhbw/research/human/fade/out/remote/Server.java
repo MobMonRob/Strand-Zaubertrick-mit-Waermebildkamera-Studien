@@ -2,9 +2,6 @@ package de.dhbw.research.human.fade.out.remote;
 
 import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -41,8 +38,7 @@ public class Server {
 
                     ThermalImage nextImage = (ThermalImage) inputStream.readObject();
 
-                    BufferedImage bufferedImage = toImage(nextImage);
-                    previewFrame.updatePreview(bufferedImage);
+                    previewFrame.updatePreview(nextImage.getBufferedImage());
 
                 } catch (EOFException e) {
                     System.out.println("Connection closed by client");
@@ -61,7 +57,6 @@ public class Server {
     public void stop() {
         try {
             inputStream.close();
-//            outputStream.close();
             clientSocket.close();
             serverSocket.close();
         } catch (IOException e) {
@@ -70,23 +65,7 @@ public class Server {
         }
     }
 
-//    public void send(Bitmap image) {
-//        image.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
-//    }
-
-    public BufferedImage toImage(ThermalImage image) {
-        BufferedImage bufferedImage = null;
-        try {
-            bufferedImage = ImageIO.read(new ByteArrayInputStream(image.getVisualData()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return bufferedImage;
-    }
-
     public static void main(String[] args) {
-
-
         Server server = new Server(4444);
         server.start();
     }

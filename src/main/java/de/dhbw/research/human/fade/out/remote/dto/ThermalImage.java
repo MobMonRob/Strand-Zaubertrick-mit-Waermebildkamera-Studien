@@ -1,5 +1,9 @@
 package de.dhbw.research.human.fade.out.remote.dto;
 
+import android.graphics.Bitmap;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -11,15 +15,21 @@ public class ThermalImage implements Serializable {
     private int width;
     private int height;
     private int[] thermalData;
-    private int length;
-    private byte[] visualData;
+    private Bitmap bitmap;
+    private BufferedImage bufferedImage;
 
-    public ThermalImage(int width, int height, int[] thermalData, byte[] visualData) {
+    public ThermalImage(int width, int height, int[] thermalData, Bitmap bitmap) {
         this.width = width;
         this.height = height;
         this.thermalData = thermalData;
-        this.length = visualData.length;
-        this.visualData = visualData;
+        this.bitmap = bitmap;
+    }
+
+    public ThermalImage(int width, int height, int[] thermalData, BufferedImage bufferedImage) {
+        this.width = width;
+        this.height = height;
+        this.thermalData = thermalData;
+        this.bufferedImage = bufferedImage;
     }
 
     public int getWidth() {
@@ -34,8 +44,8 @@ public class ThermalImage implements Serializable {
         return thermalData;
     }
 
-    public byte[] getVisualData() {
-        return visualData;
+    public BufferedImage getBufferedImage() {
+        return bufferedImage;
     }
 
     private void writeObject(ObjectOutputStream outputStream) throws IOException {
@@ -44,8 +54,12 @@ public class ThermalImage implements Serializable {
         for (int thermalValue : thermalData) {
             outputStream.writeShort((short) thermalValue);
         }
-        outputStream.writeInt(length);
-        outputStream.write(visualData);
+        if (bitmap != null) {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+        } else {
+            ImageIO.write(bufferedImage, "jpg", outputStream);
+        }
+        outputStream.flush();
     }
 
     private void readObject(ObjectInputStream inputStream) throws IOException {
@@ -57,11 +71,6 @@ public class ThermalImage implements Serializable {
             thermalData[i] = inputStream.readShort();
         }
 
-        length = inputStream.readInt();
-
-        visualData = new byte[length];
-        for (int i = 0; i < length; i++) {
-            visualData[i] = inputStream.readByte();
-        }
+        bufferedImage = ImageIO.read(inputStream);
     }
 }
