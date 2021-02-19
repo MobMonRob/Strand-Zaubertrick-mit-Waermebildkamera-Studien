@@ -99,6 +99,10 @@ public class Server {
             }
         }
 
+        List<MatOfPoint> contour = new ArrayList<>();
+        Imgproc.findContours(mask, contour, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
+        Imgproc.drawContours(mask, contour, -1, new Scalar(255), 40);
+
         Photo.inpaint(mat, mask, mat, 5, Photo.INPAINT_NS);
 //        mat.copyTo(mask, mat);
 
