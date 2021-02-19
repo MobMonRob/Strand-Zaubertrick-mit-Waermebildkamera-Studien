@@ -35,7 +35,7 @@ public class OpenCVImageProcessor implements ImageProcessor{
 
         Mat mask = new Mat(image.getHeight(), image.getWidth(), CvType.CV_8UC1);
 
-        int[] thermalData = image.getThermalData();
+        boolean[] thermalMask = image.getThermalMask();
 
         ColorModel colorModel = image.getBufferedImage().getColorModel();
         WritableRaster raster = image.getBufferedImage().copyData(null);
@@ -43,7 +43,7 @@ public class OpenCVImageProcessor implements ImageProcessor{
         BufferedImage maskImage = new BufferedImage(colorModel, raster, isAlphaPremultiplied, null);
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
-                if (thermalData[x + y * image.getWidth()] > 30065) {
+                if (thermalMask[x + y * image.getWidth()]) {
                     mask.put(y, x, 0xff);
                     maskImage.setRGB(x, y, 0xffffff);
                 } else {
