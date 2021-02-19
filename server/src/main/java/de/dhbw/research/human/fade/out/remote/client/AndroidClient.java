@@ -14,15 +14,17 @@ public class AndroidClient extends AsyncTask<Void, Void, Void> {
 
     private final String ip;
     private final int port;
+    private int maskTemperature;
 
     private Socket clientSocket;
     private DataOutputStream outputStream;
     private final Queue<ThermalImage> thermalImages = new ConcurrentLinkedQueue<ThermalImage>();
     private boolean active = false;
 
-    public AndroidClient(String ip, int port) {
+    public AndroidClient(String ip, int port, int maskTemperature) {
         this.ip = ip;
         this.port = port;
+        this.maskTemperature = maskTemperature;
     }
 
     protected Void doInBackground(Void... voids) {
@@ -54,7 +56,7 @@ public class AndroidClient extends AsyncTask<Void, Void, Void> {
                         ThermalImage image = thermalImages.poll();
                         if (image != null) {
                             try {
-                                image.send(outputStream);
+                                image.send(outputStream, maskTemperature);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }

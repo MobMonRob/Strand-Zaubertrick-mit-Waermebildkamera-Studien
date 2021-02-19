@@ -57,7 +57,12 @@ public class ThermalImage {
 
     public void send(DataOutputStream outputStream) throws IOException {
         sendImage(outputStream);
-        sendThermalData(outputStream, 30065);
+        sendThermalMask(outputStream);
+    }
+
+    public void send(DataOutputStream outputStream, int maskTemperature) throws IOException {
+        sendImage(outputStream);
+        sendThermalData(outputStream, maskTemperature);
     }
 
     private void sendImage(DataOutputStream outputStream) throws IOException {
@@ -80,6 +85,22 @@ public class ThermalImage {
             index++;
             encodedByte <<= 1;
             encodedByte |= thermalValue > maskTemperature ? 1 : 0;
+            if (index == 8) {
+                outputStream.writeByte(encodedByte);
+                index = 0;
+                count++;
+            }
+        }
+        System.out.println(count + " bytes send");
+    }
+
+    private void sendThermalMask(DataOutputStream outputStream) throws IOException {
+        byte encodedByte = 0;
+        int index = 0, count = 0;
+        for (boolean maskBit : thermalMask) {
+            index++;
+            encodedByte <<= 1;
+            encodedByte |= maskBit ? 1 : 0;
             if (index == 8) {
                 outputStream.writeByte(encodedByte);
                 index = 0;
