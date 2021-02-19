@@ -1,4 +1,4 @@
-package de.dhbw.research.human.fade.out.remote;
+package de.dhbw.research.human.fade.out.remote.server;
 
 import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
 import de.dhbw.research.human.fade.out.remote.imageProcessor.ImageProcessor;

@@ -1,4 +1,4 @@
-package de.dhbw.research.human.fade.out.remote;
+package de.dhbw.research.human.fade.out.remote.misc;
 
 import java.io.OutputStream;
 import java.net.ServerSocket;

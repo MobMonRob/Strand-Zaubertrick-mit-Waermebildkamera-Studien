@@ -1,4 +1,4 @@
-package de.dhbw.research.human.fade.out.remote;
+package de.dhbw.research.human.fade.out.remote.misc;
 
 import android.os.AsyncTask;
 import android.util.Log;

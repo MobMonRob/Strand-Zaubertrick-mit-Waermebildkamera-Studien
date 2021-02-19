@@ -1,7 +1,7 @@
 package de.dhbw.research.human.fade.out.remote.imageProcessor;
 
-import de.dhbw.research.human.fade.out.remote.PreviewFrame;
 import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
+import de.dhbw.research.human.fade.out.remote.ui.PreviewFrame;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;

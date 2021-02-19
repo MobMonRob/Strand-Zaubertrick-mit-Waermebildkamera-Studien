@@ -1,4 +1,4 @@
-package de.dhbw.research.human.fade.out.remote;
+package de.dhbw.research.human.fade.out.remote.ui;
 
 import javax.swing.*;
 import java.awt.*;

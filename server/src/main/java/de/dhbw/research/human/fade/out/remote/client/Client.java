@@ -1,4 +1,4 @@
-package de.dhbw.research.human.fade.out.remote;
+package de.dhbw.research.human.fade.out.remote.client;
 
 import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
 
@@ -74,27 +74,27 @@ public class Client {
 
         System.out.println("Send Image 1");
         client.send(new ThermalImage(480, 640, thermalData, image));
-//        System.out.println("Send Image 2");
-//        client.send(new ThermalImage(480, 640, thermalData, image));
-//        System.out.println("Send Image 3");
-//        client.send(new ThermalImage(480, 640, thermalData, image));
-//        System.out.println("Send Image 4");
-//        client.send(new ThermalImage(480, 640, thermalData, image));
-//        System.out.println("Send Image 5");
-//        client.send(new ThermalImage(480, 640, thermalData, image));
-//
-//        image = createDummyImage(0x00ff00);
-//
-//        System.out.println("Send Image 6");
-//        client.send(new ThermalImage(480, 640, thermalData, image));
-//        System.out.println("Send Image 7");
-//        client.send(new ThermalImage(480, 640, thermalData, image));
-//        System.out.println("Send Image 8");
-//        client.send(new ThermalImage(480, 640, thermalData, image));
-//        System.out.println("Send Image 9");
-//        client.send(new ThermalImage(480, 640, thermalData, image));
-//        System.out.println("Send Image 10");
-//        client.send(new ThermalImage(480, 640, thermalData, image));
+        System.out.println("Send Image 2");
+        client.send(new ThermalImage(480, 640, thermalData, image));
+        System.out.println("Send Image 3");
+        client.send(new ThermalImage(480, 640, thermalData, image));
+        System.out.println("Send Image 4");
+        client.send(new ThermalImage(480, 640, thermalData, image));
+        System.out.println("Send Image 5");
+        client.send(new ThermalImage(480, 640, thermalData, image));
+
+        image = createDummyImage(0x00ff00);
+
+        System.out.println("Send Image 6");
+        client.send(new ThermalImage(480, 640, thermalData, image));
+        System.out.println("Send Image 7");
+        client.send(new ThermalImage(480, 640, thermalData, image));
+        System.out.println("Send Image 8");
+        client.send(new ThermalImage(480, 640, thermalData, image));
+        System.out.println("Send Image 9");
+        client.send(new ThermalImage(480, 640, thermalData, image));
+        System.out.println("Send Image 10");
+        client.send(new ThermalImage(480, 640, thermalData, image));
 
         client.stopConnection();
     }

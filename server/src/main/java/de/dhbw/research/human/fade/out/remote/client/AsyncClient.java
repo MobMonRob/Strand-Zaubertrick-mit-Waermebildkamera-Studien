@@ -1,4 +1,4 @@
-package de.dhbw.research.human.fade.out.remote;
+package de.dhbw.research.human.fade.out.remote.client;
 
 import android.os.AsyncTask;
 import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
