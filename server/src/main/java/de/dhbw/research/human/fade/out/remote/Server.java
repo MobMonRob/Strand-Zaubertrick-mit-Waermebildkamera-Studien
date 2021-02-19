@@ -6,14 +6,11 @@ import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.photo.Photo;
 
-import javax.xml.crypto.dsig.keyinfo.RetrievalMethod;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -27,7 +24,7 @@ public class Server {
 
     private ServerSocket serverSocket;
     private Socket clientSocket;
-    private ObjectInputStream inputStream;
+    private DataInputStream inputStream;
 
     public Server(int port) {
         this.port = port;
@@ -42,17 +39,15 @@ public class Server {
 
                 clientSocket = serverSocket.accept();
 
-                inputStream = new ObjectInputStream(clientSocket.getInputStream());
+                inputStream = new DataInputStream(clientSocket.getInputStream());
 
                 boolean hasConnection = true;
                 while (hasConnection) {
                     try {
-                        onImageReceived((ThermalImage) inputStream.readUnshared());
+                        onImageReceived(ThermalImage.receive(inputStream));
                     } catch (EOFException e) {
                         System.out.println("Connection closed by client");
                         hasConnection = false;
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
                     }
                 }
             }
@@ -90,7 +85,7 @@ public class Server {
         BufferedImage maskImage = new BufferedImage(colorModel, raster, isAlphaPremultiplied, null);
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
-                if (thermalData[x + y * image.getWidth()] > 30315) {
+                if (thermalData[x + y * image.getWidth()] > 30065) {
                     mask.put(y, x, 0xff);
                     maskImage.setRGB(x, y, 0xffffff);
                 } else {

@@ -4,13 +4,10 @@ import android.graphics.Bitmap;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 
 // Size 2.457.784 Byte
-public class ThermalImage implements Serializable {
+public class ThermalImage {
 
     private int width;
     private int height;
@@ -48,28 +45,44 @@ public class ThermalImage implements Serializable {
         return bufferedImage;
     }
 
-    private void writeObject(ObjectOutputStream outputStream) throws IOException {
-        outputStream.writeShort((short) width);
-        outputStream.writeShort((short) height);
+    public void send(DataOutputStream outputStream) throws IOException {
+        sendImage(outputStream);
+
         for (int thermalValue : thermalData) {
             outputStream.writeShort((short) thermalValue);
         }
-        if (bitmap != null) {
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-        } else {
-            ImageIO.write(bufferedImage, "jpg", outputStream);
-        }
     }
 
-    private void readObject(ObjectInputStream inputStream) throws IOException {
-        width = inputStream.readShort();
-        height = inputStream.readShort();
+    public void sendImage(DataOutputStream outputStream) throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
-        thermalData = new int[width * height];
+        if (bitmap != null) {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+        } else {
+            ImageIO.write(bufferedImage, "png", byteArrayOutputStream);
+        }
+
+        outputStream.writeInt(byteArrayOutputStream.size());
+        byteArrayOutputStream.writeTo(outputStream);
+    }
+
+    public static ThermalImage receive(DataInputStream inputStream) throws IOException {
+        BufferedImage bufferedImage = receiveImage(inputStream);
+
+        int[] thermalData = new int[bufferedImage.getWidth() * bufferedImage.getHeight()];
         for (int i = 0; i < thermalData.length; i++) {
             thermalData[i] = inputStream.readShort();
         }
 
-        bufferedImage = ImageIO.read(inputStream);
+        return new ThermalImage(bufferedImage.getWidth(), bufferedImage.getHeight(), thermalData, bufferedImage);
     }
+
+    public static BufferedImage receiveImage(DataInputStream inputStream) throws IOException {
+        int length = inputStream.readInt();
+        byte[] bytes = new byte[length];
+        inputStream.read(bytes);
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
+        return ImageIO.read(byteArrayInputStream);
+    }
+
 }

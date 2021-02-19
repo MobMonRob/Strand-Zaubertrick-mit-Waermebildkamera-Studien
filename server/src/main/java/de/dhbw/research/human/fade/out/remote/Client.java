@@ -3,8 +3,8 @@ package de.dhbw.research.human.fade.out.remote;
 import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
 
 import java.awt.image.BufferedImage;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Arrays;
 
@@ -14,7 +14,7 @@ public class Client {
     private int port;
 
     private Socket clientSocket;
-    private ObjectOutputStream outputStream;
+    private DataOutputStream outputStream;
 
     public Client(String ip, int port) {
         this.ip = ip;
@@ -25,7 +25,7 @@ public class Client {
         try {
             clientSocket = new Socket(ip, port);
 
-            outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
+            outputStream = new DataOutputStream(clientSocket.getOutputStream());
 
         } catch (IOException e) {
             System.out.println("Error while starting server:");
@@ -46,7 +46,7 @@ public class Client {
 
     public void send(ThermalImage image) {
         try {
-            outputStream.writeUnshared(image);
+            image.send(outputStream);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -72,19 +72,29 @@ public class Client {
 
         BufferedImage image = createDummyImage(0xff0000);
 
+        System.out.println("Send Image 1");
         client.send(new ThermalImage(480, 640, thermalData, image));
-        client.send(new ThermalImage(480, 640, thermalData, image));
-        client.send(new ThermalImage(480, 640, thermalData, image));
-        client.send(new ThermalImage(480, 640, thermalData, image));
-        client.send(new ThermalImage(480, 640, thermalData, image));
-
-        image = createDummyImage(0x00ff00);
-
-        client.send(new ThermalImage(480, 640, thermalData, image));
-        client.send(new ThermalImage(480, 640, thermalData, image));
-        client.send(new ThermalImage(480, 640, thermalData, image));
-        client.send(new ThermalImage(480, 640, thermalData, image));
-        client.send(new ThermalImage(480, 640, thermalData, image));
+//        System.out.println("Send Image 2");
+//        client.send(new ThermalImage(480, 640, thermalData, image));
+//        System.out.println("Send Image 3");
+//        client.send(new ThermalImage(480, 640, thermalData, image));
+//        System.out.println("Send Image 4");
+//        client.send(new ThermalImage(480, 640, thermalData, image));
+//        System.out.println("Send Image 5");
+//        client.send(new ThermalImage(480, 640, thermalData, image));
+//
+//        image = createDummyImage(0x00ff00);
+//
+//        System.out.println("Send Image 6");
+//        client.send(new ThermalImage(480, 640, thermalData, image));
+//        System.out.println("Send Image 7");
+//        client.send(new ThermalImage(480, 640, thermalData, image));
+//        System.out.println("Send Image 8");
+//        client.send(new ThermalImage(480, 640, thermalData, image));
+//        System.out.println("Send Image 9");
+//        client.send(new ThermalImage(480, 640, thermalData, image));
+//        System.out.println("Send Image 10");
+//        client.send(new ThermalImage(480, 640, thermalData, image));
 
         client.stopConnection();
     }
