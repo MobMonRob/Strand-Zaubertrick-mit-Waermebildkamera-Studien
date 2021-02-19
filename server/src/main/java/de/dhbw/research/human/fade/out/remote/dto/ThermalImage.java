@@ -53,7 +53,7 @@ public class ThermalImage {
         }
     }
 
-    public void sendImage(DataOutputStream outputStream) throws IOException {
+    private void sendImage(DataOutputStream outputStream) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
         if (bitmap != null) {
@@ -77,7 +77,7 @@ public class ThermalImage {
         return new ThermalImage(bufferedImage.getWidth(), bufferedImage.getHeight(), thermalData, bufferedImage);
     }
 
-    public static BufferedImage receiveImage(DataInputStream inputStream) throws IOException {
+    private static BufferedImage receiveImage(DataInputStream inputStream) throws IOException {
         int length = inputStream.readInt();
         byte[] bytes = new byte[length];
         inputStream.read(bytes);
