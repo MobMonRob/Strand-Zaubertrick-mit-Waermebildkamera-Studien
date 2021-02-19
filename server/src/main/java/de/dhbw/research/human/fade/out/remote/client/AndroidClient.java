@@ -3,23 +3,24 @@ package de.dhbw.research.human.fade.out.remote.client;
 import android.os.AsyncTask;
 import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class AsyncClient extends AsyncTask<Void, Void, Void> {
+public class AndroidClient extends AsyncTask<Void, Void, Void> {
 
-    private String ip;
-    private int port;
+    private final String ip;
+    private final int port;
 
     private Socket clientSocket;
-    private ObjectOutputStream outputStream;
-    private Queue<ThermalImage> thermalImages = new ConcurrentLinkedQueue<ThermalImage>();
+    private DataOutputStream outputStream;
+    private final Queue<ThermalImage> thermalImages = new ConcurrentLinkedQueue<ThermalImage>();
     private boolean active = false;
 
-    public AsyncClient(String ip, int port) {
+    public AndroidClient(String ip, int port) {
         this.ip = ip;
         this.port = port;
     }
@@ -28,9 +29,9 @@ public class AsyncClient extends AsyncTask<Void, Void, Void> {
         try {
             clientSocket = new Socket(ip, port);
 
-            outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
+            outputStream = new DataOutputStream(clientSocket.getOutputStream());
         } catch (IOException e) {
-            System.out.println("Error while starting server:");
+            System.out.println("Error while starting client:");
             e.printStackTrace();
         }
         return null;
@@ -53,7 +54,7 @@ public class AsyncClient extends AsyncTask<Void, Void, Void> {
                         ThermalImage image = thermalImages.poll();
                         if (image != null) {
                             try {
-                                outputStream.writeUnshared(image);
+                                image.send(outputStream);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -67,7 +68,6 @@ public class AsyncClient extends AsyncTask<Void, Void, Void> {
     public void closeConnection() {
         active = false;
         try {
-//            inputStream.close();
             outputStream.close();
             clientSocket.close();
         } catch (IOException e) {
