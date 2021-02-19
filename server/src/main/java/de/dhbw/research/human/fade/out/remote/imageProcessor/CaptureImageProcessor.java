@@ -16,9 +16,9 @@ public class CaptureImageProcessor implements ImageProcessor{
     }
 
     @Override
-    public void onImageReceived(ThermalImage thermalImage) {
+    public void onImageReceived(ThermalImage image) {
         try {
-            thermalImage.send(outputStream);
+            image.send(outputStream);
         } catch (IOException e) {
             e.printStackTrace();
         }

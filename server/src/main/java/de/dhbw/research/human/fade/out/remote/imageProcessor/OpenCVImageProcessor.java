@@ -26,24 +26,24 @@ public class OpenCVImageProcessor implements ImageProcessor{
     }
 
     @Override
-    public void onImageReceived(ThermalImage thermalImage) {
-        Mat mat = new Mat(thermalImage.getHeight(), thermalImage.getWidth(),
+    public void onImageReceived(ThermalImage image) {
+        Mat mat = new Mat(image.getHeight(), image.getWidth(),
                           CvType.CV_8UC3);
 
-        mat.put(0, 0, ((DataBufferByte) thermalImage.getBufferedImage().getRaster().
+        mat.put(0, 0, ((DataBufferByte) image.getBufferedImage().getRaster().
                 getDataBuffer()).getData());
 
-        Mat mask = new Mat(thermalImage.getHeight(), thermalImage.getWidth(), CvType.CV_8UC1);
+        Mat mask = new Mat(image.getHeight(), image.getWidth(), CvType.CV_8UC1);
 
-        int[] thermalData = thermalImage.getThermalData();
+        int[] thermalData = image.getThermalData();
 
-        ColorModel colorModel = thermalImage.getBufferedImage().getColorModel();
-        WritableRaster raster = thermalImage.getBufferedImage().copyData(null);
+        ColorModel colorModel = image.getBufferedImage().getColorModel();
+        WritableRaster raster = image.getBufferedImage().copyData(null);
         boolean isAlphaPremultiplied = colorModel.isAlphaPremultiplied();
         BufferedImage maskImage = new BufferedImage(colorModel, raster, isAlphaPremultiplied, null);
-        for (int y = 0; y < thermalImage.getHeight(); y++) {
-            for (int x = 0; x < thermalImage.getWidth(); x++) {
-                if (thermalData[x + y * thermalImage.getWidth()] > 30065) {
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                if (thermalData[x + y * image.getWidth()] > 30065) {
                     mask.put(y, x, 0xff);
                     maskImage.setRGB(x, y, 0xffffff);
                 } else {
@@ -59,10 +59,10 @@ public class OpenCVImageProcessor implements ImageProcessor{
         Photo.inpaint(mat, mask, mat, 5, Photo.INPAINT_NS);
 //        mat.copyTo(mask, mat);
 
-        BufferedImage result = new BufferedImage(thermalImage.getWidth(), thermalImage.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
+        BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
         byte[] data = ((DataBufferByte) result.getRaster().getDataBuffer()).getData();
         mat.get(0, 0, data);
 
-        previewFrame.updatePreview(thermalImage.getBufferedImage(), maskImage, result);
+        previewFrame.updatePreview(image.getBufferedImage(), maskImage, result);
     }
 }

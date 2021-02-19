@@ -9,22 +9,22 @@ import java.io.*;
 // Size 2.457.784 Byte
 public class ThermalImage {
 
-    private int width;
-    private int height;
-    private int[] thermalData;
+    private final int width;
+    private final int height;
+    private final int[] thermalData;
     private Bitmap bitmap;
     private BufferedImage bufferedImage;
 
-    public ThermalImage(int width, int height, int[] thermalData, Bitmap bitmap) {
-        this.width = width;
-        this.height = height;
-        this.thermalData = thermalData;
+    public ThermalImage(Bitmap bitmap, int[] thermalData) {
+        this.width = bitmap.getWidth();
+        this.height = bitmap.getHeight();
         this.bitmap = bitmap;
+        this.thermalData = thermalData;
     }
 
-    public ThermalImage(int width, int height, int[] thermalData, BufferedImage bufferedImage) {
-        this.width = width;
-        this.height = height;
+    public ThermalImage(BufferedImage bufferedImage, int[] thermalData) {
+        this.width = bufferedImage.getWidth();
+        this.height = bufferedImage.getHeight();
         this.thermalData = thermalData;
         this.bufferedImage = bufferedImage;
     }
@@ -74,7 +74,7 @@ public class ThermalImage {
             thermalData[i] = inputStream.readShort();
         }
 
-        return new ThermalImage(bufferedImage.getWidth(), bufferedImage.getHeight(), thermalData, bufferedImage);
+        return new ThermalImage(bufferedImage, thermalData);
     }
 
     private static BufferedImage receiveImage(DataInputStream inputStream) throws IOException {
