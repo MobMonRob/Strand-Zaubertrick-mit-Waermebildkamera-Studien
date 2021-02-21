@@ -9,11 +9,11 @@ PORT = 4444
 
 
 class ThermalImage:
-    def __init__(self, image, thermal_data):
+    def __init__(self, image, thermal_mask):
         self.width = image.width
         self.height = image.height
         self.image = image
-        self.thermal_data = thermal_data
+        self.thermal_mask = thermal_mask
 
     @staticmethod
     def receive(socket_file):
@@ -23,32 +23,44 @@ class ThermalImage:
 
         img_data = socket_file.read(img_length)
         img = Image.open(io.BytesIO(img_data))
-        thermal_data = socket_file.read(img.width * img.height * 2)
 
-        return ThermalImage(img, thermal_data)
+        thermal_mask = socket_file.read(int((img.width * img.height) / 8))
+        thermal_mask = numpy.frombuffer(thermal_mask, dtype=numpy.byte, count=-1, offset=0)
+        thermal_mask = thermal_mask.reshape(len(thermal_mask), 1)
+        byte_to_bool = numpy.vectorize(ThermalImage.decode_byte, otypes=[numpy.ndarray])
+        thermal_mask = numpy.hstack(byte_to_bool(thermal_mask).flatten())
+
+        return ThermalImage(img, thermal_mask)
 
     @staticmethod
     def read_int(file):
         return int.from_bytes(file.read(4), byteorder='big', signed=False)
 
+    @staticmethod
+    def decode_byte(byte):
+        return [(byte & 128) != 0,
+                            (byte & 64) != 0,
+                            (byte & 32) != 0,
+                            (byte & 16) != 0,
+                            (byte & 8) != 0,
+                            (byte & 4) != 0,
+                            (byte & 2) != 0,
+                            (byte & 1) != 0]
+
 
 class ImageProcessor:
+    convert_to_cv_mask = numpy.vectorize(lambda value: 255 if value else 0)
+
     def __init__(self):
         size = (480, 640)
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         self.video = cv2.VideoWriter('/tmp/output.mp4', fourcc, 10, size)
 
-    @staticmethod
-    def thermal_data_to_mask(value):
-        return 255 if value > 0 else 0
-
     def on_image_received(self, thermal_image):
         cv_image = cv2.cvtColor(numpy.array(thermal_image.image), cv2.COLOR_RGB2BGR)
 
-        thermal_data_to_mask_vectorized = numpy.vectorize(self.thermal_data_to_mask)
-        mask = numpy.frombuffer(thermal_image.thermal_data, dtype='>h', count=-1, offset=0)
-        mask = mask.reshape(thermal_image.height, thermal_image.width)
-        mask = thermal_data_to_mask_vectorized(mask).astype(numpy.uint8)
+        mask = thermal_image.thermal_mask.reshape(thermal_image.height, thermal_image.width)
+        mask = self.convert_to_cv_mask(mask).astype(numpy.uint8)
 
         cv_mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
         # cv2.imshow("test", cv_mask)
