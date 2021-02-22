@@ -22,9 +22,13 @@ public class AndroidClient extends AsyncTask<Void, Void, Void> {
     private boolean active = false;
 
     public AndroidClient(String ip, int port, int maskTemperature) {
+        this(ip, port);
+        this.maskTemperature = maskTemperature;
+    }
+
+    public AndroidClient(String ip, int port) {
         this.ip = ip;
         this.port = port;
-        this.maskTemperature = maskTemperature;
     }
 
     protected Void doInBackground(Void... voids) {
@@ -76,5 +80,9 @@ public class AndroidClient extends AsyncTask<Void, Void, Void> {
             System.out.println("Error while closing connection:");
             e.printStackTrace();
         }
+    }
+
+    public void setMaskTemperature(int maskTemperature) {
+        this.maskTemperature = maskTemperature;
     }
 }
