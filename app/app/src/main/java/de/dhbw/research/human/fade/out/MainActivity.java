@@ -1,9 +1,13 @@
 package de.dhbw.research.human.fade.out;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.SeekBar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -13,7 +17,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import de.dhbw.research.human.fade.out.flir.FlirDevice;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity {
 
     private String[] neededPermissions = new String[]{
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -23,12 +27,15 @@ public class MainActivity extends AppCompatActivity{
     private FlirDevice flirDevice;
 
     private FloatingActionButton startButton;
-    private FloatingActionButton stopButton;
+
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        sharedPreferences = getSharedPreferences(getString(R.string.settings_file), Context.MODE_PRIVATE);
 
         createFlirDevice();
 
@@ -40,11 +47,27 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
-        stopButton = findViewById(R.id.stop);
-        stopButton.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.settings).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onStopButtonClicked();
+                onSettingsButtonClicked();
+            }
+        });
+
+        ((SeekBar) findViewById(R.id.temperature_seek)).setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                onTemperatureChanged(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
             }
         });
 
@@ -81,14 +104,23 @@ public class MainActivity extends AppCompatActivity{
         enableStoppedState();
     }
 
+    private void onSettingsButtonClicked() {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
+
+    private void onTemperatureChanged(int temperature) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(getString(R.string.temperature_value_key), temperature);
+        editor.apply();
+    }
+
     private void enableStartedState() {
         startButton.setEnabled(false);
-        stopButton.setEnabled(true);
     }
 
     private void enableStoppedState() {
         startButton.setEnabled(true);
-        stopButton.setEnabled(false);
     }
 
     private boolean permissionsGranted() {

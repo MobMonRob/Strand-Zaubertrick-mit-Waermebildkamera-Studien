@@ -13,8 +13,7 @@ import java.util.EnumSet;
 
 import de.dhbw.research.human.fade.out.R;
 import de.dhbw.research.human.fade.out.imageProcessing.ImageProcessor;
-import de.dhbw.research.human.fade.out.imageProcessing.MaskedImageProcessor;
-import de.dhbw.research.human.fade.out.imageProcessing.RemoteProcessor;
+import de.dhbw.research.human.fade.out.imageProcessing.RemoteImageProcessor;
 
 public class FlirDevice implements Device.Delegate, Device.StreamDelegate, Device.PowerUpdateDelegate, FrameProcessor.Delegate {
     private Activity activity;
@@ -28,7 +27,7 @@ public class FlirDevice implements Device.Delegate, Device.StreamDelegate, Devic
         this.activity = activity;
         this.frameProcessor = new FrameProcessor(activity, this, EnumSet.of(RenderedImage.ImageType.ThermalRadiometricKelvinImage, RenderedImage.ImageType.VisibleAlignedRGBA8888Image));
 //        imageProcessor = new MaskedImageProcessor((ImageView) activity.findViewById(R.id.image));
-        imageProcessor = new RemoteProcessor((ImageView) activity.findViewById(R.id.image));
+        imageProcessor = new RemoteImageProcessor((ImageView) activity.findViewById(R.id.image), activity);
     }
 
     public void start() {

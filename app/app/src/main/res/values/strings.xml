@@ -2,4 +2,11 @@
     <string name="app_name">HumanFadeOut</string>
     <string name="action_settings">Settings</string>
     <string name="image_description">rendered Image</string>
+    <string name="settings_file">settings</string>
+    <string name="server_ip_key">ServerIp</string>
+    <string name="server_ip_label">Server Ip</string>
+    <string name="server_port_key">ServerPort</string>
+    <string name="server_port_label">Server Port</string>
+    <string name="save_settings">Save</string>
+    <string name="temperature_value_key">temperature</string>
 </resources>

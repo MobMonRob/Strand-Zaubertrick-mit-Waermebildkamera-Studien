@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="50dp"
+    android:layout_height="400dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/max_temperature"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:text="40"
+        android:textAlignment="center" />
+
+    <SeekBar
+        android:id="@+id/temperature_seek"
+        android:layout_width="360dp"
+        android:layout_height="360dp"
+        android:layout_marginStart="-155dp"
+        android:rotation="90" />
+
+    <TextView
+        android:id="@+id/min_temperature"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:text="20"
+        android:textAlignment="center" />
+
+</LinearLayout>
