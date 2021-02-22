@@ -62,11 +62,11 @@ class ImageProcessor:
         mask = thermal_image.thermal_mask.reshape(thermal_image.height, thermal_image.width)
         mask = self.convert_to_cv_mask(mask).astype(numpy.uint8)
 
-        cv_mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+        inpainted_image = cv2.inpaint(cv_image, mask, 5, cv2.INPAINT_NS)
         # cv2.imshow("test", cv_mask)
         # cv2.waitKey()
 
-        self.video.write(cv_mask)
+        self.video.write(inpainted_image)
 
 
 def main():
