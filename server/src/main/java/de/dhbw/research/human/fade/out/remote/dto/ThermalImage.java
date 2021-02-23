@@ -134,7 +134,7 @@ public class ThermalImage {
     private static BufferedImage receiveImage(DataInputStream inputStream) throws IOException {
         int length = inputStream.readInt();
         byte[] bytes = new byte[length];
-        inputStream.read(bytes);
+        inputStream.readFully(bytes);
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
         return ImageIO.read(byteArrayInputStream);
     }
