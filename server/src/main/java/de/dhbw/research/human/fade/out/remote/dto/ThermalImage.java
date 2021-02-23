@@ -69,9 +69,9 @@ public class ThermalImage {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
         if (bitmap != null) {
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
         } else {
-            ImageIO.write(bufferedImage, "png", byteArrayOutputStream);
+            ImageIO.write(bufferedImage, "jpg", byteArrayOutputStream);
         }
 
         outputStream.writeInt(byteArrayOutputStream.size());
