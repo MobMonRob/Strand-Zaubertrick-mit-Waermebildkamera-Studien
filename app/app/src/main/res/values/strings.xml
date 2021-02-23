@@ -9,4 +9,7 @@
     <string name="server_port_label">Server Port</string>
     <string name="save_settings">Save</string>
     <string name="temperature_value_key">temperature</string>
+    <string name="temperature_current_value">%1$d℃</string>
+    <string name="temperature_min_value">25℃</string>
+    <string name="temperature_max_value">35℃</string>
 </resources>

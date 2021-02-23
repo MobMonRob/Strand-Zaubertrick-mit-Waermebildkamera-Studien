@@ -8,7 +8,7 @@
         android:id="@+id/max_temperature"
         android:layout_width="match_parent"
         android:layout_height="20dp"
-        android:text="40"
+        android:text="@string/temperature_max_value"
         android:textAlignment="center" />
 
     <SeekBar
@@ -16,13 +16,13 @@
         android:layout_width="360dp"
         android:layout_height="360dp"
         android:layout_marginStart="-155dp"
-        android:rotation="90" />
+        android:rotation="270" />
 
     <TextView
         android:id="@+id/min_temperature"
         android:layout_width="match_parent"
         android:layout_height="20dp"
-        android:text="20"
+        android:text="@string/temperature_min_value"
         android:textAlignment="center" />
 
 </LinearLayout>

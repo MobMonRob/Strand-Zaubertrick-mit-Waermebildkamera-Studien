@@ -46,12 +46,11 @@
         app:backgroundTint="@color/colorAccent"
         app:srcCompat="@android:drawable/ic_menu_preferences" />
 
-    <SeekBar
-        android:id="@+id/temperature_select"
-        android:layout_width="360dp"
-        android:layout_height="20dp"
-        android:layout_gravity="center_vertical|end"
-        android:layout_marginEnd="-155dp"
-        android:rotation="90" />
+    <TextView
+        android:id="@+id/current_temperature"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start|top"
+        android:layout_marginTop="64dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
