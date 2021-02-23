@@ -39,13 +39,13 @@ class ThermalImage:
     @staticmethod
     def decode_byte(byte):
         return [(byte & 128) != 0,
-                            (byte & 64) != 0,
-                            (byte & 32) != 0,
-                            (byte & 16) != 0,
-                            (byte & 8) != 0,
-                            (byte & 4) != 0,
-                            (byte & 2) != 0,
-                            (byte & 1) != 0]
+                (byte & 64) != 0,
+                (byte & 32) != 0,
+                (byte & 16) != 0,
+                (byte & 8) != 0,
+                (byte & 4) != 0,
+                (byte & 2) != 0,
+                (byte & 1) != 0]
 
 
 class ImageProcessor:
@@ -63,8 +63,10 @@ class ImageProcessor:
         mask = self.convert_to_cv_mask(mask).astype(numpy.uint8)
 
         inpainted_image = cv2.inpaint(cv_image, mask, 5, cv2.INPAINT_NS)
-        # cv2.imshow("test", cv_mask)
-        # cv2.waitKey()
+        cv2.imshow("Image", cv_image)
+        cv2.imshow("Mask", mask)
+        cv2.imshow("inpainted Image", inpainted_image)
+        cv2.waitKey(1)
 
         self.video.write(inpainted_image)
 
