@@ -1,14 +1,13 @@
 package de.dhbw.research.human.fade.out.remote.server;
 
 import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
+import de.dhbw.research.human.fade.out.remote.imageProcessor.CaptureImageProcessor;
 import de.dhbw.research.human.fade.out.remote.imageProcessor.ImageProcessor;
 import de.dhbw.research.human.fade.out.remote.imageProcessor.OpenCVImageProcessor;
 import nu.pattern.OpenCV;
 import org.opencv.core.Core;
 
-import java.io.DataInputStream;
-import java.io.EOFException;
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -22,9 +21,9 @@ public class Server {
     private Socket clientSocket;
     private DataInputStream inputStream;
 
-    public Server(int port) {
+    public Server(int port, ImageProcessor imageProcessor) {
         this.port = port;
-        imageProcessor = new OpenCVImageProcessor();
+        this.imageProcessor = imageProcessor;
     }
 
     public void start() {
@@ -42,6 +41,7 @@ public class Server {
                         final ThermalImage thermalImage = ThermalImage.receive(inputStream);
                         imageProcessor.onImageReceived(thermalImage);
                     } catch (EOFException e) {
+                        e.printStackTrace();
                         System.out.println("Connection closed by client");
                         hasConnection = false;
                     }
@@ -64,10 +64,16 @@ public class Server {
         }
     }
 
-    public static void main(String[] args) {
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        OpenCV.loadShared();
-        Server server = new Server(4444);
+    public static void main(String[] args) throws FileNotFoundException {
+        ImageProcessor imageProcessor;
+        if (args.length == 2 && args[0].equals("record")) {
+            imageProcessor = new CaptureImageProcessor(args[1]);
+        } else {
+            System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+            OpenCV.loadShared();
+            imageProcessor = new OpenCVImageProcessor();
+        }
+        Server server = new Server(4444, imageProcessor);
         server.start();
     }
 }
