@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private FlirDevice flirDevice;
 
     private FloatingActionButton startButton;
+    private TextView currentTemperatureView;
 
     private SharedPreferences sharedPreferences;
 
@@ -54,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        currentTemperatureView = findViewById(R.id.current_temperature);
+        currentTemperatureView.setText(String.format(getString(R.string.temperature_current_value), sharedPreferences.getInt(getString(R.string.temperature_value_key), 0)));
         ((SeekBar) findViewById(R.id.temperature_seek)).setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -109,7 +113,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void onTemperatureChanged(int temperature) {
+    private void onTemperatureChanged(int value) {
+        int temperature = 29815 + (value * 10);
+
+        currentTemperatureView.setText(String.format(getString(R.string.temperature_current_value), temperature));
+
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(getString(R.string.temperature_value_key), temperature);
         editor.apply();
