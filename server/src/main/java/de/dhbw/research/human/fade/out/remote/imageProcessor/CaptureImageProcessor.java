@@ -6,13 +6,17 @@ import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class CaptureImageProcessor implements ImageProcessor{
 
     private final DataOutputStream outputStream;
 
-    public CaptureImageProcessor() throws FileNotFoundException {
-        outputStream = new DataOutputStream(new FileOutputStream("recorded/test"));
+    public CaptureImageProcessor(String path) throws FileNotFoundException {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd:MM:yyyy-HH:mm:ss");
+        Date date = new Date();
+        outputStream = new DataOutputStream(new FileOutputStream(path + "-" + formatter.format(date)));
     }
 
     @Override
