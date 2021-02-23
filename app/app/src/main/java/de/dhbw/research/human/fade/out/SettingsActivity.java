@@ -31,12 +31,12 @@ public class SettingsActivity extends AppCompatActivity {
         serverIpInput.setText(sharedPreferences.getString(getString(R.string.server_ip_key), ""));
 
         serverPortInput = findViewById(R.id.server_port_input);
-        serverPortInput.setText(sharedPreferences.getInt(getString(R.string.server_port_key), 0));
+        serverPortInput.setText(String.valueOf(sharedPreferences.getInt(getString(R.string.server_port_key), 0)));
     }
 
     private void onSaveButonClicked() {
-        saveServerPort();
         saveServerIp();
+        saveServerPort();
     }
 
     private void saveServerIp() {
