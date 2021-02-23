@@ -1,5 +1,6 @@
 package de.dhbw.research.human.fade.out.imageProcessing;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.widget.ImageView;
@@ -17,12 +18,12 @@ public class MaskedImageProcessor implements ImageProcessor {
 
     private Queue<Bitmap> lastRealImages = new ConcurrentLinkedQueue<>();
 
-    public MaskedImageProcessor(ImageView imageView) {
-        this.imageView = imageView;
+    public MaskedImageProcessor() {
     }
 
     @Override
-    public void init() {
+    public void init(final ImageView imageView, final Activity activity) {
+        this.imageView  = imageView;
 //        new Thread(new Runnable() {
 //            @Override
 //            public void run() {

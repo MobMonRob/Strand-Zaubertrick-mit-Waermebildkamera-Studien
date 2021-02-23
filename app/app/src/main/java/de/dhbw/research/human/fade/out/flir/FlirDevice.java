@@ -27,7 +27,7 @@ public class FlirDevice implements Device.Delegate, Device.StreamDelegate, Devic
         this.activity = activity;
         this.frameProcessor = new FrameProcessor(activity, this, EnumSet.of(RenderedImage.ImageType.ThermalRadiometricKelvinImage, RenderedImage.ImageType.VisibleAlignedRGBA8888Image));
 //        imageProcessor = new MaskedImageProcessor((ImageView) activity.findViewById(R.id.image));
-        imageProcessor = new RemoteImageProcessor((ImageView) activity.findViewById(R.id.image), activity);
+        imageProcessor = new RemoteImageProcessor();
     }
 
     public void start() {
@@ -36,7 +36,7 @@ public class FlirDevice implements Device.Delegate, Device.StreamDelegate, Devic
                 flirDevice.setPowerUpdateDelegate(this);
                 flirDevice.startFrameStream(this);
 
-                imageProcessor.init();
+                imageProcessor.init((ImageView) activity.findViewById(R.id.image), activity);
             } else {
                 Device.startDiscovery(activity, this);
             }

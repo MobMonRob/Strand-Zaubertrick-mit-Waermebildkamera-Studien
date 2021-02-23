@@ -1,5 +1,6 @@
 package de.dhbw.research.human.fade.out.imageProcessing;
 
+import android.app.Activity;
 import android.widget.ImageView;
 
 import com.flir.flironesdk.RenderedImage;
@@ -7,18 +8,18 @@ import com.flir.flironesdk.RenderedImage;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class PlainImageProcessor implements ImageProcessor{
+public class PlainImageProcessor implements ImageProcessor {
 
     private ImageView imageView;
 
     private Queue<Runnable> renderTasks = new ConcurrentLinkedQueue<>();
 
-    public PlainImageProcessor(ImageView imageView) {
-        this.imageView = imageView;
+    public PlainImageProcessor() {
     }
 
     @Override
-    public void init() {
+    public void init(final ImageView imageView, final Activity activity) {
+        this.imageView = imageView;
         new Thread(new Runnable() {
             @Override
             public void run() {
