@@ -7,19 +7,27 @@ import de.dhbw.research.human.fade.out.remote.imageProcessor.OpenCVImageProcesso
 import nu.pattern.OpenCV;
 import org.opencv.core.Core;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.EOFException;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class Server {
 
     private int port;
+    private boolean measureFps = true;
 
     private ImageProcessor imageProcessor;
 
     private ServerSocket serverSocket;
     private Socket clientSocket;
     private DataInputStream inputStream;
+
+    private LocalDateTime lastReceived = LocalDateTime.now();
 
     public Server(int port, ImageProcessor imageProcessor) {
         this.port = port;
@@ -39,6 +47,11 @@ public class Server {
                 while (hasConnection) {
                     try {
                         final ThermalImage thermalImage = ThermalImage.receive(inputStream);
+                        if (measureFps) {
+                            LocalDateTime currentReceived = LocalDateTime.now();
+                            System.out.println((1000F / Duration.between(lastReceived, currentReceived).toMillis()) + " FPS");
+                            lastReceived = currentReceived;
+                        }
                         imageProcessor.onImageReceived(thermalImage);
                     } catch (EOFException e) {
                         e.printStackTrace();

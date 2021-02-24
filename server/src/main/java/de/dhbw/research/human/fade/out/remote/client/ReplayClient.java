@@ -56,7 +56,7 @@ public class ReplayClient {
         ReplayClient client = new ReplayClient("localhost", 4444);
         client.startConnection();
 
-        final DataInputStream inputStream = new DataInputStream(new FileInputStream("recorded/test"));
+        final DataInputStream inputStream = new DataInputStream(new FileInputStream("recorded/cat-test-24:02:2021-08:46:54"));
 
         int sendCount = 0;
         while (true) {
@@ -65,7 +65,8 @@ public class ReplayClient {
                 client.send(thermalImage);
                 sendCount++;
                 System.out.println("Send image " + sendCount);
-            } catch (IOException e) {
+                Thread.sleep(400);
+            } catch (IOException | InterruptedException e) {
                 break;
             }
         }
