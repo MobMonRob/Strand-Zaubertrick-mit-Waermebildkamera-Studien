@@ -2,8 +2,8 @@ package de.dhbw.research.human.fade.out.remote.server;
 
 import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
 import de.dhbw.research.human.fade.out.remote.imageProcessor.CaptureImageProcessor;
+import de.dhbw.research.human.fade.out.remote.imageProcessor.CopyImageProcessor;
 import de.dhbw.research.human.fade.out.remote.imageProcessor.ImageProcessor;
-import de.dhbw.research.human.fade.out.remote.imageProcessor.OpenCVImageProcessor;
 import nu.pattern.OpenCV;
 import org.opencv.core.Core;
 
@@ -84,7 +84,7 @@ public class Server {
         } else {
             System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
             OpenCV.loadShared();
-            imageProcessor = new OpenCVImageProcessor();
+            imageProcessor = new CopyImageProcessor();
         }
         Server server = new Server(4444, imageProcessor);
         server.start();
