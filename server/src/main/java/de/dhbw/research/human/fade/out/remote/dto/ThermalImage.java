@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.Arrays;
+import java.util.List;
 
 // Size 2.457.784 Byte
 // Image dimensions must be multiple of 8
@@ -79,19 +81,38 @@ public class ThermalImage {
     }
 
     private void sendThermalData(DataOutputStream outputStream, int maskTemperature) throws IOException {
+        int size = thermalData.length;
+        int halfSize = size / 2;
+        int fourthSize = size / 4;
+
+        byte[] encodedBytes = new byte[size / 8];
+        List<Thread> threads = Arrays.asList(new Thread(() -> encodeBytes(0, fourthSize, maskTemperature, encodedBytes)),
+                                             new Thread(() -> encodeBytes(fourthSize, halfSize, maskTemperature, encodedBytes)),
+                                             new Thread(() -> encodeBytes(halfSize, fourthSize * 3, maskTemperature, encodedBytes)),
+                                             new Thread(() -> encodeBytes(fourthSize * 3, size, maskTemperature, encodedBytes)));
+        threads.forEach(Thread::start);
+        threads.forEach(thread -> {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        outputStream.write(encodedBytes);
+    }
+
+    private void encodeBytes(int start, int end, int maskTemperature, byte[] dest) {
+        int index = 0;
         byte encodedByte = 0;
-        int index = 0, count = 0;
-        for (int thermalValue : thermalData) {
+        for (int i = start; i < end; i++) {
             index++;
             encodedByte <<= 1;
-            encodedByte |= thermalValue > maskTemperature ? 1 : 0;
+            encodedByte |= thermalData[i] > maskTemperature ? 1 : 0;
             if (index == 8) {
-                outputStream.writeByte(encodedByte);
+                dest[i / 8] = encodedByte;
                 index = 0;
-                count++;
             }
         }
-        System.out.println(count + " bytes send");
     }
 
     private void sendThermalMask(DataOutputStream outputStream) throws IOException {
