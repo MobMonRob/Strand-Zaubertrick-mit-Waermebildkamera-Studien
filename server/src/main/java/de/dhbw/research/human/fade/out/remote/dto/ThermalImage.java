@@ -12,31 +12,43 @@ import java.util.List;
 // Image dimensions must be multiple of 8
 public class ThermalImage {
 
+    public static final byte MODE_NONE = 0;
+    public static final byte MODE_RESET = 1;
+    public static final byte MODE_CAPTURE = 2;
+    public static final byte MODE_PHOTO = 4;
+
     private final int width;
     private final int height;
+
+    private final byte mode;
 
     private int[] thermalData;
     private boolean[] thermalMask;
     private Bitmap bitmap;
     private BufferedImage bufferedImage;
 
-    public ThermalImage(Bitmap bitmap, int[] thermalData) {
+    public ThermalImage(Bitmap bitmap, int[] thermalData, byte mode) {
         this.width = bitmap.getWidth();
         this.height = bitmap.getHeight();
+        this.mode = mode;
         this.bitmap = bitmap;
         this.thermalData = thermalData;
     }
 
-    public ThermalImage(BufferedImage bufferedImage, int[] thermalData) {
+    public ThermalImage(BufferedImage bufferedImage, int[] thermalData, byte mode) {
         this.width = bufferedImage.getWidth();
         this.height = bufferedImage.getHeight();
+        this.mode = mode;
+
         this.bufferedImage = bufferedImage;
         this.thermalData = thermalData;
     }
 
-    public ThermalImage(BufferedImage bufferedImage, boolean[] thermalMask) {
+    public ThermalImage(BufferedImage bufferedImage, boolean[] thermalMask, byte mode) {
         this.width = bufferedImage.getWidth();
         this.height = bufferedImage.getHeight();
+        this.mode = mode;
+
         this.bufferedImage = bufferedImage;
         this.thermalMask = thermalMask;
     }
@@ -57,12 +69,26 @@ public class ThermalImage {
         return thermalMask;
     }
 
+    public boolean shouldReset() {
+        return (mode & MODE_RESET) != 0;
+    }
+
+    public boolean shouldCapture() {
+        return (mode & MODE_CAPTURE) != 0;
+    }
+
+    public boolean shouldTakePhoto() {
+        return (mode & MODE_PHOTO) != 0;
+    }
+
     public void send(DataOutputStream outputStream) throws IOException {
+        outputStream.writeByte(mode);
         sendImage(outputStream);
         sendThermalMask(outputStream);
     }
 
     public void send(DataOutputStream outputStream, int maskTemperature) throws IOException {
+        outputStream.writeByte(mode);
         sendImage(outputStream);
         sendThermalData(outputStream, maskTemperature);
     }
@@ -132,6 +158,8 @@ public class ThermalImage {
     }
 
     public static ThermalImage receive(DataInputStream inputStream) throws IOException {
+        byte mode = inputStream.readByte();
+
         BufferedImage bufferedImage = receiveImage(inputStream);
 
         byte[] encodedThermalMask = new byte[bufferedImage.getWidth() * bufferedImage.getHeight() / 8];
@@ -149,7 +177,7 @@ public class ThermalImage {
             thermalMask[i * 8 + 7] = (encodedByte & 1) != 0;
         }
 
-        return new ThermalImage(bufferedImage, thermalMask);
+        return new ThermalImage(bufferedImage, thermalMask, mode);
     }
 
     private static BufferedImage receiveImage(DataInputStream inputStream) throws IOException {
