@@ -31,7 +31,7 @@ public class CopyImageProcessor implements ImageProcessor {
 
         updateBackgroundImage(pixels, image.getThermalMask());
 
-        replaceSections(pixels, image.getThermalMask(), 16);
+        replaceSections(pixels, image.getThermalMask(), 10);
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
         result.setRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
         previewFrame.updatePreview(image.getBufferedImage(), new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB), result);
