@@ -6,14 +6,19 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.appyvet.materialrangebar.RangeBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import de.dhbw.research.human.fade.out.flir.FlirDevice;
@@ -28,7 +33,14 @@ public class MainActivity extends AppCompatActivity {
     private FlirDevice flirDevice;
 
     private FloatingActionButton startButton;
-    private TextView currentTemperatureView;
+    private TextView lowerTemperatureView;
+    private TextView upperTemperatureView;
+
+    private FloatingActionButton stopButton;
+    private FloatingActionButton captureButton;
+    private FloatingActionButton photoButton;
+    private FloatingActionButton resetButton;
+    private View temperatureSelection;
 
     private SharedPreferences sharedPreferences;
 
@@ -38,6 +50,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         sharedPreferences = getSharedPreferences(getString(R.string.settings_file), Context.MODE_PRIVATE);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.showOverflowMenu();
 
         createFlirDevice();
 
@@ -49,29 +65,52 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.settings).setOnClickListener(new View.OnClickListener() {
+        stopButton = findViewById(R.id.stop);
+        stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onSettingsButtonClicked();
+                onStopButtonClicked();
             }
         });
 
-        currentTemperatureView = findViewById(R.id.current_temperature);
-        currentTemperatureView.setText(String.format(getString(R.string.temperature_current_value), sharedPreferences.getInt(getString(R.string.temperature_value_key), 0)));
-        ((SeekBar) findViewById(R.id.temperature_seek)).setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        captureButton = findViewById(R.id.capture_video);
+        photoButton = findViewById(R.id.take_photo);
+        resetButton = findViewById(R.id.reset);
+        temperatureSelection = findViewById(R.id.temperature_selection);
+
+//        findViewById(R.id.action_settings).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                onSettingsButtonClicked();
+//            }
+//        });
+
+        lowerTemperatureView = findViewById(R.id.lower_temperature);
+        float lowerTemperature = (sharedPreferences.getInt(getString(R.string.lower_temperature_value_key), 29815) - 27315) / 100F;
+        lowerTemperatureView.setText(String.format(getString(R.string.temperature_current_value), lowerTemperature));
+
+        upperTemperatureView = findViewById(R.id.upper_temperature);
+        float upperTemperature = (sharedPreferences.getInt(getString(R.string.upper_temperature_value_key), 30815) - 27315) / 100F;
+        upperTemperatureView.setText(String.format(getString(R.string.temperature_current_value), upperTemperature));
+
+        RangeBar rangeBar = findViewById(R.id.temperature_seek);
+        rangeBar.setRangePinsByValue(lowerTemperature, upperTemperature);
+        rangeBar.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                onTemperatureChanged(progress);
+            public void onRangeChangeListener(RangeBar rangeBar, int leftPinIndex, int rightPinIndex, String leftPinValue, String rightPinValue) {
+
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
+            public void onTouchStarted(RangeBar rangeBar) {
 
             }
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
+            public void onTouchEnded(RangeBar rangeBar) {
+                double lowerValue = Double.parseDouble(rangeBar.getLeftPinValue());
+                double upperValue = Double.parseDouble(rangeBar.getRightPinValue());
+                onTemperatureChanged(lowerValue, upperValue);
             }
         });
 
@@ -83,11 +122,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
     protected void onDestroy() {
         flirDevice.stop();
         flirDevice = null;
 
         super.onDestroy();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                onSettingsButtonClicked();
+                return true;
+            default: return super.onOptionsItemSelected(item);
+        }
     }
 
     private void onStartButtonClicked() {
@@ -113,22 +169,41 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void onTemperatureChanged(int value) {
-        int temperature = 29815 + (value * 10);
+    private void onTemperatureChanged(double lowerValue, double upperValue) {
+        int lowerTemperature = (int) (27315 + (lowerValue * 100));
+        int upperTemperature = (int) (27315 + (upperValue * 100));
 
-        currentTemperatureView.setText(String.format(getString(R.string.temperature_current_value), temperature));
+        lowerTemperatureView.setText(String.format(getString(R.string.temperature_current_value), lowerValue));
+        upperTemperatureView.setText(String.format(getString(R.string.temperature_current_value), upperValue));
 
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(getString(R.string.temperature_value_key), temperature);
+        editor.putInt(getString(R.string.lower_temperature_value_key), lowerTemperature);
+        editor.putInt(getString(R.string.upper_temperature_value_key), upperTemperature);
         editor.apply();
     }
 
     private void enableStartedState() {
         startButton.setEnabled(false);
+        startButton.hide();
+
+        stopButton.show();
+        captureButton.show();
+        photoButton.show();
+        resetButton.show();
+        temperatureSelection.setVisibility(View.VISIBLE);
+
     }
 
     private void enableStoppedState() {
         startButton.setEnabled(true);
+        startButton.show();
+
+        stopButton.hide();
+        captureButton.hide();
+        photoButton.hide();
+        resetButton.hide();
+        temperatureSelection.setVisibility(View.INVISIBLE);
+
     }
 
     private boolean permissionsGranted() {

@@ -23,34 +23,63 @@
     <include layout="@layout/content_main" />
 
     <include
+        android:id="@+id/temperature_selection"
         layout="@layout/temperature_selection"
         android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical|end" />
+        android:layout_gravity="center_vertical|end"
+        android:visibility="invisible" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
+        android:layout_gravity="center"
         android:layout_margin="@dimen/fab_margin"
         app:backgroundTint="@color/colorAccent"
-        app:srcCompat="@android:drawable/ic_media_play" />
+        app:srcCompat="@drawable/ic_start" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/settings"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_margin="@dimen/fab_margin"
-        app:backgroundTint="@color/colorAccent"
-        app:srcCompat="@android:drawable/ic_menu_preferences" />
-
-    <TextView
-        android:id="@+id/current_temperature"
+        android:id="@+id/stop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start|top"
-        android:layout_marginTop="64dp" />
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="64dp"
+        android:visibility="invisible"
+        app:backgroundTint="@color/colorAccent"
+        app:srcCompat="@drawable/ic_stop" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/capture_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_margin="@dimen/fab_margin"
+        android:visibility="invisible"
+        app:backgroundTint="@color/colorAccent"
+        app:srcCompat="@drawable/ic_capture_video" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/reset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_margin="@dimen/fab_margin"
+        android:translationX="-75dp"
+        android:visibility="invisible"
+        app:backgroundTint="@color/colorAccent"
+        app:srcCompat="@drawable/ic_reset" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/take_photo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_margin="@dimen/fab_margin"
+        android:translationX="75dp"
+        android:visibility="invisible"
+        app:backgroundTint="@color/colorAccent"
+        app:srcCompat="@drawable/ic_take_photo" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

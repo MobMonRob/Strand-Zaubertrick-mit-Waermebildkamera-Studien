@@ -30,7 +30,7 @@ public class RemoteImageProcessor implements ImageProcessor {
         sharedPreferences = activity.getSharedPreferences(activity.getString(R.string.settings_file), Context.MODE_PRIVATE);
         String ip = sharedPreferences.getString(activity.getString(R.string.server_ip_key), null);
         int port = sharedPreferences.getInt(activity.getString(R.string.server_port_key), 4444);
-        int temperature = sharedPreferences.getInt(activity.getString(R.string.temperature_value_key), 30065);
+        int temperature = sharedPreferences.getInt(activity.getString(R.string.lower_temperature_value_key), 30065);
 
         client = new AndroidClient(ip, port);
         client.setMaskTemperature(temperature);
@@ -39,7 +39,7 @@ public class RemoteImageProcessor implements ImageProcessor {
         sharedPreferences.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                if (key.equals(activity.getString(R.string.temperature_value_key))) {
+                if (key.equals(activity.getString(R.string.lower_temperature_value_key))) {
                     client.setMaskTemperature(sharedPreferences.getInt(key, 30065));
                 }
             }
@@ -51,7 +51,7 @@ public class RemoteImageProcessor implements ImageProcessor {
         if (image.imageType() == RenderedImage.ImageType.VisibleAlignedRGBA8888Image) {
             lastVisualImage = image.getBitmap();
         } else if (image.imageType() == RenderedImage.ImageType.ThermalRadiometricKelvinImage) {
-            ThermalImage thermalImage = new ThermalImage(lastVisualImage, image.thermalPixelValues());
+            ThermalImage thermalImage = new ThermalImage(lastVisualImage, image.thermalPixelValues(), ThermalImage.MODE_NONE);
             client.sendImage(thermalImage, true);
         }
     }

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="temperature_min_tick">25</integer>
+    <integer name="temperature_max_tick">35</integer>
+</resources>
