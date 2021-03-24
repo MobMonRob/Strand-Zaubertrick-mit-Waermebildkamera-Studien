@@ -73,17 +73,29 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        captureButton = findViewById(R.id.capture_video);
-        photoButton = findViewById(R.id.take_photo);
         resetButton = findViewById(R.id.reset);
-        temperatureSelection = findViewById(R.id.temperature_selection);
+        resetButton.setOnClickListener(v -> {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(getString(R.string.reset), true);
+            editor.apply();
+        });
 
-//        findViewById(R.id.action_settings).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                onSettingsButtonClicked();
-//            }
-//        });
+        captureButton = findViewById(R.id.capture_video);
+        captureButton.setOnClickListener(v -> {
+            boolean currentValue = sharedPreferences.getBoolean(getString(R.string.capture_video), false);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(getString(R.string.capture_video), !currentValue);
+            editor.apply();
+        });
+
+        photoButton = findViewById(R.id.take_photo);
+        photoButton.setOnClickListener(v -> {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(getString(R.string.take_photo), true);
+            editor.apply();
+        });
+
+        temperatureSelection = findViewById(R.id.temperature_selection);
 
         lowerTemperatureView = findViewById(R.id.lower_temperature);
         float lowerTemperature = (sharedPreferences.getInt(getString(R.string.lower_temperature_value_key), 29815) - 27315) / 100F;
@@ -142,7 +154,8 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_settings:
                 onSettingsButtonClicked();
                 return true;
-            default: return super.onOptionsItemSelected(item);
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 

@@ -18,6 +18,11 @@ public class RemoteImageProcessor implements ImageProcessor {
     private ImageView imageView;
     private Bitmap lastVisualImage;
     private SharedPreferences sharedPreferences;
+    private Activity activity;
+
+    private boolean reset = false;
+    private boolean captureVideo = false;
+    private boolean takePhoto = false;
 
 
     public RemoteImageProcessor() {
@@ -26,6 +31,7 @@ public class RemoteImageProcessor implements ImageProcessor {
     @Override
     public void init(final ImageView imageView, final Activity activity) {
         this.imageView = imageView;
+        this.activity = activity;
 
         sharedPreferences = activity.getSharedPreferences(activity.getString(R.string.settings_file), Context.MODE_PRIVATE);
         String ip = sharedPreferences.getString(activity.getString(R.string.server_ip_key), null);
@@ -41,6 +47,15 @@ public class RemoteImageProcessor implements ImageProcessor {
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
                 if (key.equals(activity.getString(R.string.lower_temperature_value_key))) {
                     client.setMaskTemperature(sharedPreferences.getInt(key, 30065));
+                } else if
+                (key.equals(activity.getString(R.string.reset))) {
+                    reset = sharedPreferences.getBoolean(key, false);
+                } else if
+                (key.equals(activity.getString(R.string.capture_video))) {
+                    captureVideo = sharedPreferences.getBoolean(key, false);
+                } else if
+                (key.equals(activity.getString(R.string.take_photo))) {
+                    takePhoto = sharedPreferences.getBoolean(key, false);
                 }
             }
         });
@@ -51,8 +66,27 @@ public class RemoteImageProcessor implements ImageProcessor {
         if (image.imageType() == RenderedImage.ImageType.VisibleAlignedRGBA8888Image) {
             lastVisualImage = image.getBitmap();
         } else if (image.imageType() == RenderedImage.ImageType.ThermalRadiometricKelvinImage) {
-            ThermalImage thermalImage = new ThermalImage(lastVisualImage, image.thermalPixelValues(), ThermalImage.MODE_NONE);
+
+            ThermalImage thermalImage = new ThermalImage(lastVisualImage, image.thermalPixelValues(), generateMode());
             client.sendImage(thermalImage, true);
         }
+    }
+
+    private byte generateMode() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        byte mode = ThermalImage.MODE_NONE;
+        if (reset) {
+            mode |= ThermalImage.MODE_RESET;
+            editor.putBoolean(activity.getString(R.string.reset), false);
+        }
+        if (captureVideo) {
+            mode |= ThermalImage.MODE_CAPTURE;
+        }
+        if (takePhoto) {
+            mode |= ThermalImage.MODE_PHOTO;
+            editor.putBoolean(activity.getString(R.string.take_photo), false);
+        }
+        editor.apply();
+        return mode;
     }
 }

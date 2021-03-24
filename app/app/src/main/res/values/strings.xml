@@ -11,4 +11,7 @@
     <string name="lower_temperature_value_key">lower_temperature</string>
     <string name="upper_temperature_value_key">upper_temperature</string>
     <string name="temperature_current_value">%1$.1f℃</string>
+    <string name="reset">reset</string>
+    <string name="capture_video">capture_video</string>
+    <string name="take_photo">take_photo</string>
 </resources>
