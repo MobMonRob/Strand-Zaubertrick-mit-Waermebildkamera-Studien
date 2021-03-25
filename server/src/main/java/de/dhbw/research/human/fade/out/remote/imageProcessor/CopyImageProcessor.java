@@ -3,6 +3,7 @@ package de.dhbw.research.human.fade.out.remote.imageProcessor;
 import com.google.common.primitives.Booleans;
 import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
 import de.dhbw.research.human.fade.out.remote.ui.PreviewFrame;
+import org.opencv.core.Size;
 
 import java.awt.image.BufferedImage;
 import java.util.stream.IntStream;
@@ -13,11 +14,16 @@ public class CopyImageProcessor implements ImageProcessor {
     private double pollution = 1.0f;
 
     private final PreviewFrame previewFrame;
+    private final VideoCreator videoCreator;
+
+    private boolean recording = false;
+
     private static final int SKIP_COLOR = -16742656;
 
     public CopyImageProcessor() {
         previewFrame = new PreviewFrame();
         previewFrame.setVisible(true);
+        videoCreator = new VideoCreator(10, new Size(480, 640));
     }
 
     @Override
@@ -29,17 +35,30 @@ public class CopyImageProcessor implements ImageProcessor {
         int[] pixels = image.getBufferedImage()
                             .getRGB(0, 0, image.getWidth(), image.getHeight(), null, 0, image.getWidth());
 
-        updateBackgroundImage(pixels, image.getThermalMask());
+        updateBackgroundImage(pixels, image.getThermalMask(), image.shouldReset());
 
         replaceSections(pixels, image.getThermalMask(), 10);
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
         result.setRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
+
         previewFrame.updatePreview(image.getBufferedImage(), new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB), result);
+        if (image.shouldTakePhoto()) {
+            new Thread(() -> ImageWriter.write(result)).start();
+        }
+        if (image.shouldCapture()) {
+            new Thread(() ->videoCreator.addFrame(result, !recording)).start();
+            if (!recording) {
+                recording = true;
+            }
+        }
+        if (recording && !image.shouldCapture()) {
+            recording = false;
+        }
     }
 
-    private void updateBackgroundImage(int[] image, boolean[] mask) {
+    private void updateBackgroundImage(int[] image, boolean[] mask, boolean reset) {
         double newPollution = calculatePollution(mask);
-        if (backgroundImage.length == 0 || newPollution <= pollution) {
+        if (backgroundImage.length == 0 || newPollution <= pollution || reset) {
             backgroundImage = image;
             if (newPollution > 0.00001f) {
                 pollution = newPollution;

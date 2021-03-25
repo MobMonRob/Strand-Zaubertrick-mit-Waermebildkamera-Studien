@@ -2,10 +2,7 @@ package de.dhbw.research.human.fade.out.remote.imageProcessor;
 
 import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
 import de.dhbw.research.human.fade.out.remote.ui.PreviewFrame;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.Scalar;
+import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.photo.Photo;
 
@@ -16,13 +13,17 @@ import java.awt.image.WritableRaster;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OpenCVImageProcessor implements ImageProcessor{
+public class OpenCVImageProcessor implements ImageProcessor {
 
     private final PreviewFrame previewFrame;
+    private final VideoCreator videoCreator;
+
+    private boolean recording = false;
 
     public OpenCVImageProcessor() {
         previewFrame = new PreviewFrame();
         previewFrame.setVisible(true);
+        videoCreator = new VideoCreator(10, new Size(480, 640));
     }
 
     @Override
@@ -64,5 +65,17 @@ public class OpenCVImageProcessor implements ImageProcessor{
         mat.get(0, 0, data);
 
         previewFrame.updatePreview(image.getBufferedImage(), maskImage, result);
+        if (image.shouldTakePhoto()) {
+            new Thread(() -> ImageWriter.write(result)).start();
+        }
+        if (image.shouldCapture()) {
+            new Thread(() ->videoCreator.addFrame(mat, !recording)).start();
+            if (!recording) {
+                recording = true;
+            }
+        }
+        if (recording && !image.shouldCapture()) {
+            recording = false;
+        }
     }
 }
