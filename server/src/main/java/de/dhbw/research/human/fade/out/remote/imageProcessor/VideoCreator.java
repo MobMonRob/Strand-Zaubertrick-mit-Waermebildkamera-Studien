@@ -7,12 +7,14 @@ import org.opencv.videoio.VideoWriter;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class VideoCreator {
 
     private final double fps;
     private final Size size;
-
+    private final SimpleDateFormat formatter = new SimpleDateFormat("dd:MM:yyyy-HH:mm:ss");
 
     VideoWriter videoWriter;
 
@@ -22,7 +24,9 @@ public class VideoCreator {
     }
 
     public void addFrame(Mat image, boolean newVideo) {
-        videoWriter = new VideoWriter("test.mp4", 0, fps, size);
+        if (newVideo) {
+            videoWriter = new VideoWriter("video-" + formatter.format(new Date()) + ".mp4", 0, fps, size);
+        }
         videoWriter.write(image);
     }
 
