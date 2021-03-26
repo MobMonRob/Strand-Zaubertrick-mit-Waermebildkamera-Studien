@@ -22,12 +22,19 @@ public class Server {
     private boolean measureFps = true;
 
     private ImageProcessor imageProcessor;
+    private ImageProcessor secondaryImageProcessor;
 
     private ServerSocket serverSocket;
     private Socket clientSocket;
     private DataInputStream inputStream;
 
     private LocalDateTime lastReceived = LocalDateTime.now();
+
+    public Server(int port, ImageProcessor imageProcessor, ImageProcessor secondaryImageProcessor) {
+        this.port = port;
+        this.imageProcessor = imageProcessor;
+        this.secondaryImageProcessor = secondaryImageProcessor;
+    }
 
     public Server(int port, ImageProcessor imageProcessor) {
         this.port = port;
@@ -53,6 +60,9 @@ public class Server {
                             lastReceived = currentReceived;
                         }
                         imageProcessor.onImageReceived(thermalImage);
+                        if (secondaryImageProcessor != null) {
+                            secondaryImageProcessor.onImageReceived(thermalImage);
+                        }
                     } catch (EOFException e) {
                         e.printStackTrace();
                         System.out.println("Connection closed by client");
@@ -78,15 +88,18 @@ public class Server {
     }
 
     public static void main(String[] args) throws FileNotFoundException {
+        Server server;
         ImageProcessor imageProcessor;
+
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        OpenCV.loadShared();
+        imageProcessor = new CopyImageProcessor();
+
         if (args.length == 2 && args[0].equals("record")) {
-            imageProcessor = new CaptureImageProcessor(args[1]);
+            server = new Server(4444, imageProcessor, new CaptureImageProcessor(args[1]));
         } else {
-            System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-            OpenCV.loadShared();
-            imageProcessor = new CopyImageProcessor();
+            server = new Server(4444, imageProcessor);
         }
-        Server server = new Server(4444, imageProcessor);
         server.start();
     }
 }
