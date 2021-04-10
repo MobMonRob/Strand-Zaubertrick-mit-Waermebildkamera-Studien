@@ -1,7 +1,9 @@
 package de.dhbw.research.human.fade.out.remote.imageProcessor;
 
 import com.google.common.primitives.Booleans;
-import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
+import de.dhbw.research.human.fade.out.remote.imageProcessor.util.ImageWriter;
+import de.dhbw.research.human.fade.out.remote.imageProcessor.util.VideoCreator;
+import de.dhbw.research.human.fade.out.remote.thermalImage.ThermalImageJava;
 import de.dhbw.research.human.fade.out.remote.ui.PreviewFrame;
 import org.opencv.core.Size;
 
@@ -19,6 +21,7 @@ public class CopyImageProcessor implements ImageProcessor {
     private boolean recording = false;
 
     private static final int SKIP_COLOR = -16742656;
+    private static final int THREAD_COUNT = 10;
 
     public CopyImageProcessor() {
         previewFrame = new PreviewFrame();
@@ -27,7 +30,7 @@ public class CopyImageProcessor implements ImageProcessor {
     }
 
     @Override
-    public void onImageReceived(ThermalImage image) {
+    public void onImageReceived(ThermalImageJava image) {
         if (image.getBufferedImage().getRGB(0, 0) == SKIP_COLOR) {
             return;
         }
@@ -35,18 +38,20 @@ public class CopyImageProcessor implements ImageProcessor {
         int[] pixels = image.getBufferedImage()
                             .getRGB(0, 0, image.getWidth(), image.getHeight(), null, 0, image.getWidth());
 
-        updateBackgroundImage(pixels, image.getThermalMask(), image.shouldReset());
+        updateBackgroundImage(pixels, image.getBooleanThermalMask(), image.shouldReset());
 
-        replaceSections(pixels, image.getThermalMask(), 10);
+
+        replaceSections(pixels, image.getBooleanThermalMask());
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
         result.setRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
 
         previewFrame.updatePreview(image.getBufferedImage(), new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB), result);
+
         if (image.shouldTakePhoto()) {
             new Thread(() -> ImageWriter.write(result)).start();
         }
         if (image.shouldCapture()) {
-            new Thread(() ->videoCreator.addFrame(result, !recording)).start();
+            new Thread(() -> videoCreator.addFrame(result, !recording)).start();
             if (!recording) {
                 recording = true;
             }
@@ -76,9 +81,9 @@ public class CopyImageProcessor implements ImageProcessor {
         return thermalCount / (double) mask.length;
     }
 
-    private void replaceSections(int[] image, boolean[] mask, int threadCount) {
-        int sectionSize = image.length / threadCount;
-        IntStream.range(0, threadCount)
+    private void replaceSections(int[] image, boolean[] mask) {
+        int sectionSize = image.length / THREAD_COUNT;
+        IntStream.range(0, THREAD_COUNT)
                  .mapToObj(i -> new Thread(() -> replaceSection(sectionSize * i, sectionSize * (i + 1), image, mask)))
                  .peek(Thread::start)
                  .forEach(thread -> {

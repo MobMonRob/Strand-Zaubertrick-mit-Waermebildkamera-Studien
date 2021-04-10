@@ -1,11 +1,10 @@
 package de.dhbw.research.human.fade.out.remote.client;
 
 import android.os.AsyncTask;
-import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
+import de.dhbw.research.human.fade.out.remote.thermalImage.ThermalImageJava;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -18,7 +17,7 @@ public class AndroidClient extends AsyncTask<Void, Void, Void> {
 
     private Socket clientSocket;
     private DataOutputStream outputStream;
-    private final Queue<ThermalImage> thermalImages = new ConcurrentLinkedQueue<ThermalImage>();
+    private final Queue<ThermalImageJava> thermalImages = new ConcurrentLinkedQueue<ThermalImageJava>();
     private boolean active = false;
 
     public AndroidClient(String ip, int port, int maskTemperature) {
@@ -43,7 +42,7 @@ public class AndroidClient extends AsyncTask<Void, Void, Void> {
         return null;
     }
 
-    public void sendImage(ThermalImage image, boolean clearQueue) {
+    public void sendImage(ThermalImageJava image, boolean clearQueue) {
         if (clearQueue) {
             thermalImages.clear();
         }
@@ -57,10 +56,10 @@ public class AndroidClient extends AsyncTask<Void, Void, Void> {
             public void run() {
                 while (active) {
                     if (outputStream != null) {
-                        ThermalImage image = thermalImages.poll();
+                        ThermalImageJava image = thermalImages.poll();
                         if (image != null) {
                             try {
-                                image.send(outputStream, maskTemperature);
+                                image.send(outputStream);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }

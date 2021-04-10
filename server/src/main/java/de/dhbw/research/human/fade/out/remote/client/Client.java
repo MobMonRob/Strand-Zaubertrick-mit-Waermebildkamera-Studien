@@ -1,6 +1,7 @@
 package de.dhbw.research.human.fade.out.remote.client;
 
-import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
+import de.dhbw.research.human.fade.out.remote.thermalImage.TemperatureRange;
+import de.dhbw.research.human.fade.out.remote.thermalImage.ThermalImageJava;
 
 import java.awt.image.BufferedImage;
 import java.io.DataOutputStream;
@@ -44,9 +45,9 @@ public class Client {
         }
     }
 
-    public void send(ThermalImage image) {
+    public void send(ThermalImageJava image) {
         try {
-            image.send(outputStream, 30065);
+            image.send(outputStream);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -67,34 +68,39 @@ public class Client {
         Client client = new Client("localhost", 4444);
         client.startConnection();
 
+        final TemperatureRange range = new TemperatureRange(30065, 30085);
         int[] thermalData = new int[307200];
         Arrays.fill(thermalData, 1);
+        for (int i = 0; i < 307200 / 2; i++) {
+            thermalData[i] = 30085;
+        }
 
         BufferedImage image = createDummyImage(0xff0000);
 
         System.out.println("Send Image 1");
-        client.send(new ThermalImage(image, thermalData, ThermalImage.MODE_NONE));
+
+        client.send(new ThermalImageJava(image, thermalData, range, ThermalImageJava.MODE_NONE));
         System.out.println("Send Image 2");
-        client.send(new ThermalImage(image, thermalData, ThermalImage.MODE_NONE));
+        client.send(new ThermalImageJava(image, thermalData, range, ThermalImageJava.MODE_NONE));
         System.out.println("Send Image 3");
-        client.send(new ThermalImage(image, thermalData, ThermalImage.MODE_NONE));
+        client.send(new ThermalImageJava(image, thermalData, range, ThermalImageJava.MODE_NONE));
         System.out.println("Send Image 4");
-        client.send(new ThermalImage(image, thermalData, ThermalImage.MODE_NONE));
+        client.send(new ThermalImageJava(image, thermalData, range, ThermalImageJava.MODE_NONE));
         System.out.println("Send Image 5");
-        client.send(new ThermalImage(image, thermalData, ThermalImage.MODE_NONE));
+        client.send(new ThermalImageJava(image, thermalData, range, ThermalImageJava.MODE_NONE));
 
         image = createDummyImage(0x00ff00);
 
         System.out.println("Send Image 6");
-        client.send(new ThermalImage(image, thermalData, ThermalImage.MODE_NONE));
+        client.send(new ThermalImageJava(image, thermalData, range, ThermalImageJava.MODE_NONE));
         System.out.println("Send Image 7");
-        client.send(new ThermalImage(image, thermalData, ThermalImage.MODE_NONE));
+        client.send(new ThermalImageJava(image, thermalData, range, ThermalImageJava.MODE_NONE));
         System.out.println("Send Image 8");
-        client.send(new ThermalImage(image, thermalData, ThermalImage.MODE_NONE));
+        client.send(new ThermalImageJava(image, thermalData, range, ThermalImageJava.MODE_NONE));
         System.out.println("Send Image 9");
-        client.send(new ThermalImage(image, thermalData, ThermalImage.MODE_NONE));
+        client.send(new ThermalImageJava(image, thermalData, range, ThermalImageJava.MODE_NONE));
         System.out.println("Send Image 10");
-        client.send(new ThermalImage(image, thermalData, ThermalImage.MODE_NONE));
+        client.send(new ThermalImageJava(image, thermalData, range, ThermalImageJava.MODE_NONE));
 
         client.stopConnection();
     }

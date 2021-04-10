@@ -1,6 +1,6 @@
 package de.dhbw.research.human.fade.out.remote.client;
 
-import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
+import de.dhbw.research.human.fade.out.remote.thermalImage.ThermalImageJava;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -44,7 +44,7 @@ public class ReplayClient {
         }
     }
 
-    public void send(ThermalImage image) {
+    public void send(ThermalImageJava image) {
         try {
             image.send(outputStream);
         } catch (IOException e) {
@@ -61,7 +61,7 @@ public class ReplayClient {
         int sendCount = 0;
         while (true) {
             try {
-                ThermalImage thermalImage = ThermalImage.receive(inputStream);
+                ThermalImageJava thermalImage = ThermalImageJava.receive(inputStream);
                 client.send(thermalImage);
                 sendCount++;
                 System.out.println("Send image " + sendCount);

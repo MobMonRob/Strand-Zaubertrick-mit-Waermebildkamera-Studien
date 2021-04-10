@@ -1,6 +1,6 @@
 package de.dhbw.research.human.fade.out.remote.imageProcessor;
 
-import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
+import de.dhbw.research.human.fade.out.remote.thermalImage.ThermalImageJava;
 
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
@@ -20,7 +20,7 @@ public class CaptureImageProcessor implements ImageProcessor{
     }
 
     @Override
-    public void onImageReceived(ThermalImage image) {
+    public void onImageReceived(ThermalImageJava image) {
         try {
             image.send(outputStream);
         } catch (IOException e) {

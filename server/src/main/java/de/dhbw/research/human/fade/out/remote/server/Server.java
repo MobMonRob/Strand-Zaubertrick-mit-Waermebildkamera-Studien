@@ -1,9 +1,9 @@
 package de.dhbw.research.human.fade.out.remote.server;
 
-import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
 import de.dhbw.research.human.fade.out.remote.imageProcessor.CaptureImageProcessor;
-import de.dhbw.research.human.fade.out.remote.imageProcessor.CopyImageProcessor;
 import de.dhbw.research.human.fade.out.remote.imageProcessor.ImageProcessor;
+import de.dhbw.research.human.fade.out.remote.imageProcessor.OpenCVImageProcessor;
+import de.dhbw.research.human.fade.out.remote.thermalImage.ThermalImageJava;
 import nu.pattern.OpenCV;
 import org.opencv.core.Core;
 
@@ -53,7 +53,7 @@ public class Server {
                 boolean hasConnection = true;
                 while (hasConnection) {
                     try {
-                        final ThermalImage thermalImage = ThermalImage.receive(inputStream);
+                        final ThermalImageJava thermalImage = ThermalImageJava.receive(inputStream);
                         if (measureFps) {
                             LocalDateTime currentReceived = LocalDateTime.now();
                             System.out.println((1000F / Duration.between(lastReceived, currentReceived).toMillis()) + " FPS");
@@ -93,7 +93,7 @@ public class Server {
 
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         OpenCV.loadShared();
-        imageProcessor = new CopyImageProcessor();
+        imageProcessor = new OpenCVImageProcessor();
 
         if (args.length == 2 && args[0].equals("record")) {
             server = new Server(4444, imageProcessor, new CaptureImageProcessor(args[1]));

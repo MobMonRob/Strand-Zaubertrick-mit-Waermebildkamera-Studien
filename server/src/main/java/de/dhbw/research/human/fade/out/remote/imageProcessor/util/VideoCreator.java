@@ -1,4 +1,4 @@
-package de.dhbw.research.human.fade.out.remote.imageProcessor;
+package de.dhbw.research.human.fade.out.remote.imageProcessor.util;
 
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;

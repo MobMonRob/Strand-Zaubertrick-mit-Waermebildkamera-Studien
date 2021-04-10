@@ -1,6 +1,8 @@
 package de.dhbw.research.human.fade.out.remote.imageProcessor;
 
-import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
+import de.dhbw.research.human.fade.out.remote.imageProcessor.util.ImageWriter;
+import de.dhbw.research.human.fade.out.remote.imageProcessor.util.VideoCreator;
+import de.dhbw.research.human.fade.out.remote.thermalImage.ThermalImageJava;
 import de.dhbw.research.human.fade.out.remote.ui.PreviewFrame;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
@@ -27,7 +29,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
     }
 
     @Override
-    public void onImageReceived(ThermalImage image) {
+    public void onImageReceived(ThermalImageJava image) {
         Mat mat = new Mat(image.getHeight(), image.getWidth(),
                           CvType.CV_8UC3);
 
@@ -36,7 +38,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
 
         Mat mask = new Mat(image.getHeight(), image.getWidth(), CvType.CV_8UC1);
 
-        boolean[] thermalMask = image.getThermalMask();
+        boolean[] thermalMask = image.getBooleanThermalMask();
 
         ColorModel colorModel = image.getBufferedImage().getColorModel();
         WritableRaster raster = image.getBufferedImage().copyData(null);

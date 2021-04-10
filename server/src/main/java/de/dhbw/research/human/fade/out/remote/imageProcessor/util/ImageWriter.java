@@ -1,4 +1,4 @@
-package de.dhbw.research.human.fade.out.remote.imageProcessor;
+package de.dhbw.research.human.fade.out.remote.imageProcessor.util;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
