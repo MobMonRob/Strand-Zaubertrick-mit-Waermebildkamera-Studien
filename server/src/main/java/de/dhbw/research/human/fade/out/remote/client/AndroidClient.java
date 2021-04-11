@@ -1,6 +1,7 @@
 package de.dhbw.research.human.fade.out.remote.client;
 
 import android.os.AsyncTask;
+import android.util.Log;
 import de.dhbw.research.human.fade.out.remote.thermalImage.ThermalImageJava;
 
 import java.io.DataOutputStream;
@@ -44,6 +45,7 @@ public class AndroidClient extends AsyncTask<Void, Void, Void> {
 
     public void sendImage(ThermalImageJava image, boolean clearQueue) {
         if (clearQueue) {
+            Log.d("CLEAR-QUEUE", "Removed " + thermalImages.size() + " frames from queue");
             thermalImages.clear();
         }
         thermalImages.add(image);
