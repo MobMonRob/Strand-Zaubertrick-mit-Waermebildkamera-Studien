@@ -2,7 +2,7 @@ package de.dhbw.research.human.fade.out.remote.client;
 
 import android.os.AsyncTask;
 import android.util.Log;
-import de.dhbw.research.human.fade.out.remote.thermalImage.ThermalImageJava;
+import de.dhbw.research.human.fade.out.remote.thermalImage.ThermalImageAndroid;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -14,17 +14,11 @@ public class AndroidClient extends AsyncTask<Void, Void, Void> {
 
     private final String ip;
     private final int port;
-    private int maskTemperature;
 
     private Socket clientSocket;
     private DataOutputStream outputStream;
-    private final Queue<ThermalImageJava> thermalImages = new ConcurrentLinkedQueue<ThermalImageJava>();
+    private final Queue<ThermalImageAndroid> thermalImages = new ConcurrentLinkedQueue<>();
     private boolean active = false;
-
-    public AndroidClient(String ip, int port, int maskTemperature) {
-        this(ip, port);
-        this.maskTemperature = maskTemperature;
-    }
 
     public AndroidClient(String ip, int port) {
         this.ip = ip;
@@ -43,7 +37,7 @@ public class AndroidClient extends AsyncTask<Void, Void, Void> {
         return null;
     }
 
-    public void sendImage(ThermalImageJava image, boolean clearQueue) {
+    public void sendImage(ThermalImageAndroid image, boolean clearQueue) {
         if (clearQueue) {
             Log.d("CLEAR-QUEUE", "Removed " + thermalImages.size() + " frames from queue");
             thermalImages.clear();
@@ -58,7 +52,7 @@ public class AndroidClient extends AsyncTask<Void, Void, Void> {
             public void run() {
                 while (active) {
                     if (outputStream != null) {
-                        ThermalImageJava image = thermalImages.poll();
+                        ThermalImageAndroid image = thermalImages.poll();
                         if (image != null) {
                             try {
                                 image.send(outputStream);
@@ -81,9 +75,5 @@ public class AndroidClient extends AsyncTask<Void, Void, Void> {
             System.out.println("Error while closing connection:");
             e.printStackTrace();
         }
-    }
-
-    public void setMaskTemperature(int maskTemperature) {
-        this.maskTemperature = maskTemperature;
     }
 }
