@@ -53,8 +53,8 @@ public class ThermalImageJava extends ThermalImage {
         return bufferedImage;
     }
 
-    public boolean[] getBooleanThermalMask() {
-        boolean[] boolMask = new boolean[bufferedImage.getWidth() * bufferedImage.getHeight()];
+    public Boolean[] getBooleanThermalMask() {
+        Boolean[] boolMask = new Boolean[bufferedImage.getWidth() * bufferedImage.getHeight()];
         for (int i = 0; i < thermalMask.length; i++) {
             byte encodedByte = thermalMask[i];
             boolMask[i * 8] = (encodedByte & 128) != 0;
