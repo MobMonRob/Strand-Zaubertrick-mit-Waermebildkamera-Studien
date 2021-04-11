@@ -1,8 +1,8 @@
 package de.dhbw.research.human.fade.out.remote.server;
 
 import de.dhbw.research.human.fade.out.remote.imageProcessor.CaptureImageProcessor;
+import de.dhbw.research.human.fade.out.remote.imageProcessor.CopyImageProcessor;
 import de.dhbw.research.human.fade.out.remote.imageProcessor.ImageProcessor;
-import de.dhbw.research.human.fade.out.remote.imageProcessor.OpenCVImageProcessor;
 import de.dhbw.research.human.fade.out.remote.thermalImage.ThermalImageJava;
 import nu.pattern.OpenCV;
 import org.opencv.core.Core;
@@ -14,12 +14,14 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public class Server {
 
+    private static final boolean MEASURE_FPS = true;
+    private static final boolean MEASURE_PROCESSING_TIME = true;
+
     private int port;
-    private boolean measureFps = true;
 
     private ImageProcessor imageProcessor;
     private ImageProcessor secondaryImageProcessor;
@@ -28,7 +30,7 @@ public class Server {
     private Socket clientSocket;
     private DataInputStream inputStream;
 
-    private LocalDateTime lastReceived = LocalDateTime.now();
+    private Instant lastReceived = Instant.now();
 
     public Server(int port, ImageProcessor imageProcessor, ImageProcessor secondaryImageProcessor) {
         this.port = port;
@@ -54,12 +56,23 @@ public class Server {
                 while (hasConnection) {
                     try {
                         final ThermalImageJava thermalImage = ThermalImageJava.receive(inputStream);
-                        if (measureFps) {
-                            LocalDateTime currentReceived = LocalDateTime.now();
-                            System.out.println((1000F / Duration.between(lastReceived, currentReceived).toMillis()) + " FPS");
+
+                        if (MEASURE_FPS) {
+                            Instant currentReceived = Instant.now();
+                            long elapsedMilliseconds = Duration.between(lastReceived, currentReceived).toMillis();
+                            System.out.println("Time - Receive: " + (1000F / elapsedMilliseconds) + " FPS");
                             lastReceived = currentReceived;
                         }
-                        imageProcessor.onImageReceived(thermalImage);
+
+                        if (MEASURE_PROCESSING_TIME) {
+                            Instant start = Instant.now();
+                            imageProcessor.onImageReceived(thermalImage);
+                            Instant end = Instant.now();
+                            System.out.println("Time - Processing: " + Duration.between(start, end).toMillis() + " ms");
+                        } else {
+                            imageProcessor.onImageReceived(thermalImage);
+                        }
+
                         if (secondaryImageProcessor != null) {
                             secondaryImageProcessor.onImageReceived(thermalImage);
                         }
@@ -93,7 +106,7 @@ public class Server {
 
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         OpenCV.loadShared();
-        imageProcessor = new OpenCVImageProcessor();
+        imageProcessor = new CopyImageProcessor();
 
         if (args.length == 2 && args[0].equals("record")) {
             server = new Server(4444, imageProcessor, new CaptureImageProcessor(args[1]));
