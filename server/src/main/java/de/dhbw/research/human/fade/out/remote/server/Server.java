@@ -77,8 +77,13 @@ public class Server {
                             secondaryImageProcessor.onImageReceived(thermalImage);
                         }
                     } catch (EOFException e) {
-                        e.printStackTrace();
+                        imageProcessor.onConnectionClosed();
+                        if (secondaryImageProcessor != null) {
+                            secondaryImageProcessor.onConnectionClosed();
+                        }
+
                         System.out.println("Connection closed by client");
+                        e.printStackTrace();
                         hasConnection = false;
                     }
                 }

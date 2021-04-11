@@ -27,4 +27,8 @@ public class CaptureImageProcessor implements ImageProcessor{
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void onConnectionClosed() {
+    }
 }

@@ -7,32 +7,85 @@ import org.opencv.videoio.VideoWriter;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class VideoCreator {
 
     private final double fps;
     private final Size size;
-    private final SimpleDateFormat formatter = new SimpleDateFormat("dd:MM:yyyy-HH:mm:ss");
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy-HH:mm:ss");
 
-    VideoWriter videoWriter;
+    private final VideoWriter videoWriter;
+    private final Queue<Runnable> actionQueue = new ConcurrentLinkedQueue<>();
+
+    private static final int FOURCC = VideoWriter.fourcc('m', 'p', '4', 'v');
 
     public VideoCreator(double fps, Size size) {
         this.fps = fps;
         this.size = size;
+        videoWriter = new VideoWriter();
+
+        Thread writerThread = new Thread(() -> {
+            while (true) {
+                try {
+                    performActions();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        writerThread.start();
     }
 
     public void addFrame(Mat image, boolean newVideo) {
-        if (newVideo) {
-            videoWriter = new VideoWriter("video-" + formatter.format(new Date()) + ".mp4", 0, fps, size);
+        synchronized (actionQueue) {
+            actionQueue.add(() -> writeFrame(image, newVideo));
+            actionQueue.notify();
         }
-        videoWriter.write(image);
     }
 
     public void addFrame(BufferedImage image, boolean newVideo) {
-        Mat mat = new Mat(image.getHeight(), image.getWidth(), CvType.CV_8UC3);
-        mat.put(0, 0, ((DataBufferByte) image.getRaster().getDataBuffer()).getData());
-        addFrame(mat, newVideo);
+        synchronized (actionQueue) {
+            actionQueue.add(() -> {
+                BufferedImage bgrImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
+                bgrImage.getGraphics().drawImage(image, 0, 0, null);
+                bgrImage.getGraphics().dispose();
+
+                Mat mat = new Mat(image.getHeight(), image.getWidth(), CvType.CV_8UC3);
+                byte[] data = ((DataBufferByte) bgrImage.getRaster().getDataBuffer()).getData();
+
+                mat.put(0, 0, data);
+                writeFrame(mat, newVideo);
+            });
+            actionQueue.notify();
+        }
+    }
+
+    public void save() {
+        synchronized (actionQueue) {
+            actionQueue.add(() -> videoWriter.release());
+            actionQueue.notify();
+        }
+    }
+
+    private void performActions() throws InterruptedException {
+        synchronized (actionQueue) {
+            while (actionQueue.isEmpty()) {
+                actionQueue.wait();
+            }
+            Runnable action = actionQueue.poll();
+            action.run();
+        }
+    }
+
+    private void writeFrame(Mat image, boolean newVideo) {
+        if (newVideo) {
+            String filename = "./video-" + formatter.format(LocalDateTime.now()) + ".mp4";
+            videoWriter.open(filename, FOURCC, fps, size);
+        }
+        videoWriter.write(image);
     }
 }

@@ -25,7 +25,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
     public OpenCVImageProcessor() {
         previewFrame = new PreviewFrame();
         previewFrame.setVisible(true);
-        videoCreator = new VideoCreator(10, new Size(480, 640));
+        videoCreator = new VideoCreator(2, new Size(480, 640));
     }
 
     @Override
@@ -71,13 +71,19 @@ public class OpenCVImageProcessor implements ImageProcessor {
             new Thread(() -> ImageWriter.write(result)).start();
         }
         if (image.shouldCapture()) {
-            new Thread(() ->videoCreator.addFrame(mat, !recording)).start();
+            videoCreator.addFrame(mat, !recording);
             if (!recording) {
                 recording = true;
             }
         }
         if (recording && !image.shouldCapture()) {
+            videoCreator.save();
             recording = false;
         }
+    }
+
+    @Override
+    public void onConnectionClosed() {
+        videoCreator.save();
     }
 }

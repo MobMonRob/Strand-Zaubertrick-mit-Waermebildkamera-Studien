@@ -51,12 +51,13 @@ public class CopyImageProcessor implements ImageProcessor {
             new Thread(() -> ImageWriter.write(result)).start();
         }
         if (image.shouldCapture()) {
-            new Thread(() -> videoCreator.addFrame(result, !recording)).start();
+            videoCreator.addFrame(result, !recording);
             if (!recording) {
                 recording = true;
             }
         }
         if (recording && !image.shouldCapture()) {
+            videoCreator.save();
             recording = false;
         }
     }
@@ -101,5 +102,10 @@ public class CopyImageProcessor implements ImageProcessor {
                 image[i] = backgroundImage[i];
             }
         }
+    }
+
+    @Override
+    public void onConnectionClosed() {
+        videoCreator.save();
     }
 }
