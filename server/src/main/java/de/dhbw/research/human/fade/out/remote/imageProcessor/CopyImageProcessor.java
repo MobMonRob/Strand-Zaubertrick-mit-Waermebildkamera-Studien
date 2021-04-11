@@ -1,6 +1,5 @@
 package de.dhbw.research.human.fade.out.remote.imageProcessor;
 
-import com.google.common.primitives.Booleans;
 import de.dhbw.research.human.fade.out.remote.imageProcessor.util.ImageWriter;
 import de.dhbw.research.human.fade.out.remote.imageProcessor.util.VideoCreator;
 import de.dhbw.research.human.fade.out.remote.thermalImage.ThermalImageJava;
@@ -8,6 +7,9 @@ import de.dhbw.research.human.fade.out.remote.ui.PreviewFrame;
 import org.opencv.core.Size;
 
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class CopyImageProcessor implements ImageProcessor {
@@ -62,7 +64,7 @@ public class CopyImageProcessor implements ImageProcessor {
         }
     }
 
-    private void updateBackgroundImage(int[] image, boolean[] mask, boolean reset) {
+    private void updateBackgroundImage(int[] image, Boolean[] mask, boolean reset) {
         double newPollution = calculatePollution(mask);
         if (backgroundImage.length == 0 || newPollution <= pollution || reset) {
             backgroundImage = image;
@@ -74,29 +76,29 @@ public class CopyImageProcessor implements ImageProcessor {
         }
     }
 
-    private double calculatePollution(boolean[] mask) {
-        long thermalCount = Booleans.asList(mask)
-                                    .stream()
-                                    .filter(Boolean::booleanValue)
-                                    .count();
+    private double calculatePollution(Boolean[] mask) {
+        long thermalCount = Arrays.stream(mask)
+                                  .filter(Boolean::booleanValue)
+                                  .count();
         return thermalCount / (double) mask.length;
     }
 
-    private void replaceSections(int[] image, boolean[] mask) {
+    private void replaceSections(int[] image, Boolean[] mask) {
         int sectionSize = image.length / THREAD_COUNT;
-        IntStream.range(0, THREAD_COUNT)
-                 .mapToObj(i -> new Thread(() -> replaceSection(sectionSize * i, sectionSize * (i + 1), image, mask)))
-                 .peek(Thread::start)
-                 .forEach(thread -> {
-                     try {
-                         thread.join();
-                     } catch (InterruptedException e) {
-                         e.printStackTrace();
-                     }
-                 });
+        List<Thread> threads = IntStream.range(0, THREAD_COUNT)
+                                        .mapToObj(i -> new Thread(() -> replaceSection(sectionSize * i, sectionSize * (i + 1), image, mask)))
+                                        .collect(Collectors.toList());
+        threads.forEach(Thread::start);
+        threads.forEach(thread -> {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
-    private void replaceSection(int start, int end, int[] image, boolean[] mask) {
+    private void replaceSection(int start, int end, int[] image, Boolean[] mask) {
         for (int i = start; i < end; i++) {
             if (mask[i]) {
                 image[i] = backgroundImage[i];
