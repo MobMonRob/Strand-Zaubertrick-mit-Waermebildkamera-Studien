@@ -1,6 +1,7 @@
 package de.dhbw.research.human.fade.out.flir;
 
 import android.app.Activity;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -9,8 +10,11 @@ import com.flir.flironesdk.Frame;
 import com.flir.flironesdk.FrameProcessor;
 import com.flir.flironesdk.RenderedImage;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.EnumSet;
 
+import de.dhbw.research.human.fade.out.BuildConfig;
 import de.dhbw.research.human.fade.out.R;
 import de.dhbw.research.human.fade.out.imageProcessing.ImageProcessor;
 import de.dhbw.research.human.fade.out.imageProcessing.RemoteImageProcessor;
@@ -21,6 +25,8 @@ public class FlirDevice implements Device.Delegate, Device.StreamDelegate, Devic
     private Device.TuningState tuningState = Device.TuningState.Unknown;
     private Device flirDevice = null;
     private ImageProcessor imageProcessor;
+
+    private Instant lastReceived = Instant.now();
 
 
     public FlirDevice(Activity activity) {
@@ -88,6 +94,13 @@ public class FlirDevice implements Device.Delegate, Device.StreamDelegate, Devic
     public void onFrameReceived(Frame frame) {
         if (tuningState == Device.TuningState.Tuned || tuningState == Device.TuningState.ApproximatelyTuned) {
             frameProcessor.processFrame(frame, FrameProcessor.QueuingOption.CLEAR_QUEUED);
+            if (BuildConfig.DEBUG) {
+                Instant currentReceived = Instant.now();
+                long elapsedMilliseconds = Duration.between(lastReceived, currentReceived).toMillis();
+                Log.d("TIME-CAPTURE", "Time - Receive: " + (1000F / elapsedMilliseconds) + " FPS");
+                lastReceived = currentReceived;
+            }
+
         }
     }
 
