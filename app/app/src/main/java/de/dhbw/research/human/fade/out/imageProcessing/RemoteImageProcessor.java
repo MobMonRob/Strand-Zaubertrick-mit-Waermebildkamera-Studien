@@ -10,7 +10,9 @@ import com.flir.flironesdk.RenderedImage;
 
 import de.dhbw.research.human.fade.out.R;
 import de.dhbw.research.human.fade.out.remote.client.AndroidClient;
-import de.dhbw.research.human.fade.out.remote.dto.ThermalImage;
+import de.dhbw.research.human.fade.out.remote.thermalImage.TemperatureRange;
+import de.dhbw.research.human.fade.out.remote.thermalImage.ThermalImage;
+import de.dhbw.research.human.fade.out.remote.thermalImage.ThermalImageAndroid;
 
 public class RemoteImageProcessor implements ImageProcessor {
 
@@ -19,6 +21,8 @@ public class RemoteImageProcessor implements ImageProcessor {
     private Bitmap lastVisualImage;
     private SharedPreferences sharedPreferences;
     private Activity activity;
+
+    private TemperatureRange range;
 
     private boolean reset = false;
     private boolean captureVideo = false;
@@ -36,17 +40,18 @@ public class RemoteImageProcessor implements ImageProcessor {
         sharedPreferences = activity.getSharedPreferences(activity.getString(R.string.settings_file), Context.MODE_PRIVATE);
         String ip = sharedPreferences.getString(activity.getString(R.string.server_ip_key), null);
         int port = sharedPreferences.getInt(activity.getString(R.string.server_port_key), 4444);
-        int temperature = sharedPreferences.getInt(activity.getString(R.string.lower_temperature_value_key), 30065);
+        updateRange();
 
         client = new AndroidClient(ip, port);
-        client.setMaskTemperature(temperature);
         client.startConnection();
 
         sharedPreferences.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
                 if (key.equals(activity.getString(R.string.lower_temperature_value_key))) {
-                    client.setMaskTemperature(sharedPreferences.getInt(key, 30065));
+                    updateRange();
+                } else if (key.equals(activity.getString(R.string.upper_temperature_value_key))) {
+                    updateRange();
                 } else if
                 (key.equals(activity.getString(R.string.reset))) {
                     reset = sharedPreferences.getBoolean(key, false);
@@ -67,9 +72,16 @@ public class RemoteImageProcessor implements ImageProcessor {
             lastVisualImage = image.getBitmap();
         } else if (image.imageType() == RenderedImage.ImageType.ThermalRadiometricKelvinImage) {
 
-            ThermalImage thermalImage = new ThermalImage(lastVisualImage, image.thermalPixelValues(), generateMode());
+            ThermalImageAndroid thermalImage = new ThermalImageAndroid(lastVisualImage, image.thermalPixelValues(), range, generateMode());
             client.sendImage(thermalImage, true);
         }
+    }
+
+    private void updateRange() {
+        int minTemperature = sharedPreferences.getInt(activity.getString(R.string.lower_temperature_value_key), 30065);
+        int maxTemperature = sharedPreferences.getInt(activity.getString(R.string.upper_temperature_value_key), 30085);
+
+        range = new TemperatureRange(minTemperature, maxTemperature);
     }
 
     private byte generateMode() {
