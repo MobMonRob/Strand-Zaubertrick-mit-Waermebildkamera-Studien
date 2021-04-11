@@ -67,8 +67,9 @@ public class OpenCVImageProcessor implements ImageProcessor {
         mat.get(0, 0, data);
 
         previewFrame.updatePreview(image.getBufferedImage(), maskImage, result);
+
         if (image.shouldTakePhoto()) {
-            new Thread(() -> ImageWriter.write(result)).start();
+            ImageWriter.write(result);
         }
         if (image.shouldCapture()) {
             videoCreator.addFrame(mat, !recording);

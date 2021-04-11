@@ -12,10 +12,12 @@ public class ImageWriter {
 
 
     public static void write(BufferedImage image) {
-        try {
-            ImageIO.write(image, "jpeg", new File("image-" + formatter.format(LocalDateTime.now()) + ".jpg"));
-        } catch (IOException e) {
-            System.out.println("Could not save image.");
-        }
+        new Thread(() -> {
+            try {
+                ImageIO.write(image, "jpeg", new File("image-" + formatter.format(LocalDateTime.now()) + ".jpg"));
+            } catch (IOException e) {
+                System.out.println("Could not save image.");
+            }
+        }).start();
     }
 }

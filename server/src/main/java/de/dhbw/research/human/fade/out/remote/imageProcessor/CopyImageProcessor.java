@@ -48,7 +48,7 @@ public class CopyImageProcessor implements ImageProcessor {
         previewFrame.updatePreview(image.getBufferedImage(), new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB), result);
 
         if (image.shouldTakePhoto()) {
-            new Thread(() -> ImageWriter.write(result)).start();
+            ImageWriter.write(result);
         }
         if (image.shouldCapture()) {
             videoCreator.addFrame(result, !recording);
