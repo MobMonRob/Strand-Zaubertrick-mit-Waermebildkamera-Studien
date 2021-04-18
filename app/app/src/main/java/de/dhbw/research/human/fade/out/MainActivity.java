@@ -73,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        resetState();
+
         resetButton = findViewById(R.id.reset);
         resetButton.setOnClickListener(v -> {
             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -217,6 +219,14 @@ public class MainActivity extends AppCompatActivity {
         resetButton.hide();
         temperatureSelection.setVisibility(View.INVISIBLE);
 
+    }
+
+    private void resetState() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(getString(R.string.reset), false);
+        editor.putBoolean(getString(R.string.capture_video), false);
+        editor.putBoolean(getString(R.string.take_photo), false);
+        editor.apply();
     }
 
     private boolean permissionsGranted() {

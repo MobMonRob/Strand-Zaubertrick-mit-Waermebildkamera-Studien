@@ -14,7 +14,7 @@ import de.dhbw.research.human.fade.out.remote.thermalImage.TemperatureRange;
 import de.dhbw.research.human.fade.out.remote.thermalImage.ThermalImage;
 import de.dhbw.research.human.fade.out.remote.thermalImage.ThermalImageAndroid;
 
-public class RemoteImageProcessor implements ImageProcessor {
+public class RemoteImageProcessor implements ImageProcessor, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private AndroidClient client;
     private ImageView imageView;
@@ -45,25 +45,7 @@ public class RemoteImageProcessor implements ImageProcessor {
         client = new AndroidClient(ip, port);
         client.startConnection();
 
-        sharedPreferences.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                if (key.equals(activity.getString(R.string.lower_temperature_value_key))) {
-                    updateRange();
-                } else if (key.equals(activity.getString(R.string.upper_temperature_value_key))) {
-                    updateRange();
-                } else if
-                (key.equals(activity.getString(R.string.reset))) {
-                    reset = sharedPreferences.getBoolean(key, false);
-                } else if
-                (key.equals(activity.getString(R.string.capture_video))) {
-                    captureVideo = sharedPreferences.getBoolean(key, false);
-                } else if
-                (key.equals(activity.getString(R.string.take_photo))) {
-                    takePhoto = sharedPreferences.getBoolean(key, false);
-                }
-            }
-        });
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -74,6 +56,24 @@ public class RemoteImageProcessor implements ImageProcessor {
 
             ThermalImageAndroid thermalImage = new ThermalImageAndroid(lastVisualImage, image.thermalPixelValues(), range, generateMode());
             client.sendImage(thermalImage, true);
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(activity.getString(R.string.lower_temperature_value_key))) {
+            updateRange();
+        } else if (key.equals(activity.getString(R.string.upper_temperature_value_key))) {
+            updateRange();
+        } else if
+        (key.equals(activity.getString(R.string.reset))) {
+            reset = sharedPreferences.getBoolean(key, false);
+        } else if
+        (key.equals(activity.getString(R.string.capture_video))) {
+            captureVideo = sharedPreferences.getBoolean(key, false);
+        } else if
+        (key.equals(activity.getString(R.string.take_photo))) {
+            takePhoto = sharedPreferences.getBoolean(key, false);
         }
     }
 
