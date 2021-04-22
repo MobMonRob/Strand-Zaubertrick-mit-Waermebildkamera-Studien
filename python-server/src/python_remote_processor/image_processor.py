@@ -7,3 +7,7 @@ class ImageProcessor(ABC):
     @abstractmethod
     def on_image_received(self, thermal_image: ThermalImage):
         pass
+
+    @abstractmethod
+    def on_connection_closed(self):
+        pass

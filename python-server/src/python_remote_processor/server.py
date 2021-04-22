@@ -25,5 +25,6 @@ class Server:
                     while True:
                         thermal_image = ThermalImage.receive(file)
                         if thermal_image is None:
+                            self.image_processor.on_connection_closed()
                             break
                         self.image_processor.on_image_received(thermal_image)
