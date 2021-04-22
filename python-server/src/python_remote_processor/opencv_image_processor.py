@@ -2,7 +2,7 @@ import cv2
 import numpy
 
 from .image_processor import ImageProcessor
-from .thermal_image import ThermalImage
+from .thermal_image import ThermalImage, increase_mask
 from .util import save_image, VideoCreator
 
 
@@ -16,7 +16,9 @@ class OpenCvImageProcessor(ImageProcessor):
     def on_image_received(self, thermal_image: ThermalImage):
         cv_image = cv2.cvtColor(numpy.array(thermal_image.image), cv2.COLOR_RGB2BGR)
 
-        mask = thermal_image.thermal_mask.reshape(thermal_image.height, thermal_image.width)
+        mask = thermal_image.thermal_mask
+        mask = mask.reshape(thermal_image.height, thermal_image.width)
+        mask = increase_mask(mask)
         mask = self.convert_to_cv_mask(mask).astype(numpy.uint8)
 
         inpainted_image = cv2.inpaint(cv_image, mask, 1, cv2.INPAINT_NS)
