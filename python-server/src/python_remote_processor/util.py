@@ -29,4 +29,5 @@ class VideoCreator:
         self.video.write(frame)
 
     def save(self):
-        self.video.release()
+        if self.video is not None:
+            self.video.release()
