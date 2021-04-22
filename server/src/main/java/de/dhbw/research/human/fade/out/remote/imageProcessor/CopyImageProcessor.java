@@ -47,7 +47,11 @@ public class CopyImageProcessor implements ImageProcessor {
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
         result.setRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
 
-        previewFrame.updatePreview(image.getBufferedImage(), new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB), result);
+        int[] maskData = Arrays.stream(image.getBooleanThermalMask()).mapToInt(value -> value ? 0x00ffffff : 0).toArray();
+        BufferedImage mask = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+        mask.setRGB(0, 0, image.getWidth(), image.getHeight(), maskData, 0, image.getWidth());
+
+        previewFrame.updatePreview(image.getBufferedImage(), mask, result);
 
         if (image.shouldTakePhoto()) {
             ImageWriter.write(result);
