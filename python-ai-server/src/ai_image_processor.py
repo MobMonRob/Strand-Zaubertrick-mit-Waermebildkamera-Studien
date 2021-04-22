@@ -4,7 +4,7 @@ import tensorflow as tf
 import neuralgym as ng
 from PIL import Image
 
-from inpaint_model import InpaintCAModel
+from generative_inpainting.inpaint_model import InpaintCAModel
 from python_remote_processor.thermal_image import ThermalImage,  increase_mask
 from python_remote_processor.image_processor import ImageProcessor
 from python_remote_processor.util import VideoCreator, save_image
@@ -18,7 +18,7 @@ class AIImageProcessor(ImageProcessor):
         self.video_creator = VideoCreator()
         self.recording = False
 
-        FLAGS = ng.Config('inpaint.yml')
+        FLAGS = ng.Config('generative_inpainting/inpaint.yml')
         # ng.get_gpus(1)
 
         sess_config = tf.compat.v1.ConfigProto()
