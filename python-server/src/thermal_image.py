@@ -1,6 +1,6 @@
 import io
 from PIL import Image
-import numpy
+import numpy as np
 
 
 class ThermalImage:
@@ -22,7 +22,7 @@ class ThermalImage:
 
     @staticmethod
     def receive(socket_file):
-        mode = socket_file.read(1)
+        mode = int.from_bytes(socket_file.read(1), "little")
 
         img_length = ThermalImage.read_int(socket_file)
         if not img_length > 0:
@@ -32,10 +32,10 @@ class ThermalImage:
         img = Image.open(io.BytesIO(img_data))
 
         thermal_mask = socket_file.read(int((img.width * img.height) / 8))
-        thermal_mask = numpy.frombuffer(thermal_mask, dtype=numpy.byte, count=-1, offset=0)
+        thermal_mask = np.frombuffer(thermal_mask, dtype=np.byte, count=-1, offset=0)
         thermal_mask = thermal_mask.reshape(len(thermal_mask), 1)
-        byte_to_bool = numpy.vectorize(ThermalImage.decode_byte, otypes=[numpy.ndarray])
-        thermal_mask = numpy.hstack(byte_to_bool(thermal_mask).flatten())
+        byte_to_bool = np.vectorize(ThermalImage.decode_byte, otypes=[np.ndarray])
+        thermal_mask = np.hstack(byte_to_bool(thermal_mask).flatten())
 
         return ThermalImage(mode, img, thermal_mask)
 
