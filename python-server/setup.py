@@ -1,9 +1,9 @@
 from setuptools import setup
 
 setup(
-    name='python-remote-processor',
+    name='python_remote_processor',
     version='0.1',
     description='',
-    package_dir={'': 'lib'},
-    packages=['python-remote-processor']
+    package_dir={'': 'src'},
+    packages=['python_remote_processor']
 )

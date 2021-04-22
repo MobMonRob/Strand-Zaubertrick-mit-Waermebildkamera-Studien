@@ -1,7 +1,7 @@
 import socket
 
-from thermal_image import ThermalImage
-from image_processor import ImageProcessor
+from .thermal_image import ThermalImage
+from .image_processor import ImageProcessor
 
 
 class Server:
@@ -15,6 +15,7 @@ class Server:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.bind((self.host, self.port))
             s.listen()
+            print("Server running at {}:{}".format(self.host, self.port))
             while True:
                 conn, addr = s.accept()
                 file = conn.makefile(mode="rb")

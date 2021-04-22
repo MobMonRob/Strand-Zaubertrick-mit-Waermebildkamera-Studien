@@ -1,8 +1,8 @@
 import cv2
 import numpy
 
-from image_processor import ImageProcessor
-from thermal_image import ThermalImage
+from .image_processor import ImageProcessor
+from .thermal_image import ThermalImage
 
 
 class OpenCvImageProcessor(ImageProcessor):

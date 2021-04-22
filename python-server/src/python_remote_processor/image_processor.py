@@ -1,4 +1,4 @@
-from thermal_image import ThermalImage
+from .thermal_image import ThermalImage
 from abc import ABC, abstractmethod
 
 
