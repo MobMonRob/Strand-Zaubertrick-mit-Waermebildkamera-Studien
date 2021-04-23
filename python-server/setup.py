@@ -6,9 +6,9 @@ setup(
     description='',
     package_dir={'': 'src'},
     packages=['python_remote_processor'],
-    requires=['llvmlite',
-              'numba',
-              'numpy',
-              'opencv-contrib-python',
-              'Pillow']
+    install_requires=['llvmlite',
+                      'numba',
+                      'numpy',
+                      'opencv-contrib-python',
+                      'Pillow']
 )
