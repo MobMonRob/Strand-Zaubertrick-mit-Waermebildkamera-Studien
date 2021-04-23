@@ -5,5 +5,10 @@ setup(
     version='0.1',
     description='',
     package_dir={'': 'src'},
-    packages=['python_remote_processor']
+    packages=['python_remote_processor'],
+    requires=['llvmlite',
+              'numba',
+              'numpy',
+              'opencv-contrib-python',
+              'Pillow']
 )
