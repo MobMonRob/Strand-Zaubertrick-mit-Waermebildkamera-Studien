@@ -3,9 +3,11 @@ import numpy as np
 import tensorflow as tf
 import neuralgym as ng
 from PIL import Image
+import socket
+import pickle
 
 from generative_inpainting.inpaint_model import InpaintCAModel
-from python_remote_processor.thermal_image import ThermalImage,  increase_mask
+from python_remote_processor.thermal_image import ThermalImage, increase_mask
 from python_remote_processor.image_processor import ImageProcessor
 from python_remote_processor.util import VideoCreator, save_image
 
@@ -14,12 +16,16 @@ class AIImageProcessor(ImageProcessor):
     convert_to_cv_mask = np.vectorize(lambda value: np.array([255, 255, 255] if value else [0, 0, 0], dtype=np.uint8),
                                       otypes=[np.ndarray])
 
-    def __init__(self, checkpoint_dir):
+    def __init__(self, checkpoint_dir, use_gpu=False, preview_socket_name=None):
         self.video_creator = VideoCreator()
+        if preview_socket_name is not None:
+            self.preview_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            self.preview_socket.connect(preview_socket_name)
         self.recording = False
 
         FLAGS = ng.Config('generative_inpainting/inpaint.yml')
-        # ng.get_gpus(1)
+        if use_gpu:
+            ng.get_gpus(1)
 
         sess_config = tf.compat.v1.ConfigProto()
         sess_config.gpu_options.allow_growth = True
@@ -68,8 +74,11 @@ class AIImageProcessor(ImageProcessor):
         result = self.sess.run(self.output, feed_dict={self.input_image_ph: input_image})
         result = result[0][:, :, ::-1]
 
-        # cv2.imshow("inpainted Image", )
-        # cv2.waitKey(1)
+        if self.preview_socket is not None:
+            self.preview_socket.send(pickle.dumps(result))
+        else:
+            cv2.imshow("inpainted Image", result)
+            cv2.waitKey(1)
 
         if thermal_image.should_take_photo():
             save_image(result)
