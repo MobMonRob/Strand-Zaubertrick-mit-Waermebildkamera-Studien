@@ -5,6 +5,7 @@ import numba
 
 
 class ThermalImage:
+
     def __init__(self, mode, image, thermal_mask):
         self.mode = mode
         self.width = image.width
@@ -34,9 +35,10 @@ class ThermalImage:
 
         thermal_mask = socket_file.read(int((img.width * img.height) / 8))
         thermal_mask = np.frombuffer(thermal_mask, dtype=np.byte, count=-1, offset=0)
-        thermal_mask = thermal_mask.reshape(len(thermal_mask), 1)
-        byte_to_bool = np.vectorize(ThermalImage.decode_byte, otypes=[np.ndarray])
-        thermal_mask = np.hstack(byte_to_bool(thermal_mask).flatten())
+
+        thermal_mask = np.asarray(ThermalImage.decode_byte(thermal_mask))
+        thermal_mask = np.transpose(thermal_mask)
+        thermal_mask = thermal_mask.reshape(thermal_mask.size)
 
         return ThermalImage(mode, img, thermal_mask)
 
