@@ -1,25 +1,28 @@
 import cv2
-import numpy
+import numpy as np
 
 from .image_processor import ImageProcessor
-from .thermal_image import ThermalImage, increase_mask
+from .thermal_image import ThermalImage
 from .util import save_image, VideoCreator
 
 
 class OpenCvImageProcessor(ImageProcessor):
-    convert_to_cv_mask = numpy.vectorize(lambda value: 255 if value else 0)
 
     def __init__(self):
         self.video_creator = VideoCreator()
         self.recording = False
 
     def on_image_received(self, thermal_image: ThermalImage):
-        cv_image = cv2.cvtColor(numpy.array(thermal_image.image), cv2.COLOR_RGB2BGR)
+        cv_image = cv2.cvtColor(np.array(thermal_image.image), cv2.COLOR_RGB2BGR)
 
         mask = thermal_image.thermal_mask
-        mask = mask.reshape(thermal_image.height, thermal_image.width)
-        mask = increase_mask(mask)
-        mask = self.convert_to_cv_mask(mask).astype(numpy.uint8)
+
+        mask = np.where(mask, 255, 0)
+        mask = mask.reshape(thermal_image.height, thermal_image.width, 1).astype(np.uint8)
+
+        edged = cv2.Canny(mask, 30, 200)
+        contours, hierarchy = cv2.findContours(edged, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        cv2.drawContours(mask, contours, -1, 255, 40)
 
         inpainted_image = cv2.inpaint(cv_image, mask, 1, cv2.INPAINT_NS)
         cv2.imshow("Image", cv_image)

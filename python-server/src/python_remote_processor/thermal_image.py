@@ -1,7 +1,6 @@
 import io
 from PIL import Image
 import numpy as np
-import numba
 
 
 class ThermalImage:
@@ -56,26 +55,3 @@ class ThermalImage:
                 (byte & 4) != 0,
                 (byte & 2) != 0,
                 (byte & 1) != 0]
-
-
-RADIUS = 10
-
-
-@numba.stencil(neighborhood=((-RADIUS, RADIUS), (-RADIUS, RADIUS)))
-def __increase_areas(mask):
-    for x in range(-RADIUS, RADIUS + 1):
-        for y in range(abs(x) - RADIUS, -abs(x) + RADIUS + 1):
-            if mask[x, y]:
-                return True
-    return False
-
-
-@numba.njit
-def __increase_areas_jit(mask):
-    return __increase_areas(mask)
-
-
-def increase_mask(mask):
-    mask = np.pad(mask, pad_width=RADIUS, mode='constant', constant_values=False)
-    mask = __increase_areas_jit(mask)
-    return mask[RADIUS:-RADIUS, RADIUS:-RADIUS]
