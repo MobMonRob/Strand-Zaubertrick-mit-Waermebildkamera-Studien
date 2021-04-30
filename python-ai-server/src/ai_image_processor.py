@@ -5,11 +5,14 @@ import neuralgym as ng
 from PIL import Image
 import socket
 import pickle
+import timeit
 
 from generative_inpainting.inpaint_model import InpaintCAModel
 from python_remote_processor.thermal_image import ThermalImage, increase_mask
 from python_remote_processor.image_processor import ImageProcessor
 from python_remote_processor.util import VideoCreator, save_image
+
+MEASURE_PROCESSING_TIME = True
 
 
 class AIImageProcessor(ImageProcessor):
@@ -50,6 +53,12 @@ class AIImageProcessor(ImageProcessor):
             ThermalImage(0, Image.new('RGB', (480, 640), color='black'), np.full((480 * 640), False)))
 
     def on_image_received(self, thermal_image):
+        if MEASURE_PROCESSING_TIME:
+            print(timeit.timeit(lambda: self.on_image_received_real(thermal_image), number=1))
+        else:
+            self.on_image_received_real(thermal_image)
+
+    def on_image_received_real(self, thermal_image):
         image = cv2.cvtColor(np.array(thermal_image.image), cv2.COLOR_RGB2BGR)
 
         mask = thermal_image.thermal_mask
