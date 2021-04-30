@@ -8,6 +8,9 @@ import android.widget.ImageView;
 
 import com.flir.flironesdk.RenderedImage;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import de.dhbw.research.human.fade.out.R;
 import de.dhbw.research.human.fade.out.remote.client.AndroidClient;
 import de.dhbw.research.human.fade.out.remote.thermalImage.TemperatureRange;
@@ -18,9 +21,11 @@ public class RemoteImageProcessor implements ImageProcessor, SharedPreferences.O
 
     private AndroidClient client;
     private ImageView imageView;
-    private Bitmap lastVisualImage;
+    private Queue<Bitmap> lastVisualImages = new LinkedList<>();
     private SharedPreferences sharedPreferences;
     private Activity activity;
+
+    private int initialFrameOffset = 1;
 
     private TemperatureRange range;
 
@@ -51,11 +56,14 @@ public class RemoteImageProcessor implements ImageProcessor, SharedPreferences.O
     @Override
     public void processImage(final RenderedImage image) {
         if (image.imageType() == RenderedImage.ImageType.VisibleAlignedRGBA8888Image) {
-            lastVisualImage = image.getBitmap();
+            lastVisualImages.add(image.getBitmap());
         } else if (image.imageType() == RenderedImage.ImageType.ThermalRadiometricKelvinImage) {
-
-            ThermalImageAndroid thermalImage = new ThermalImageAndroid(lastVisualImage, image.thermalPixelValues(), range, generateMode());
-            client.sendImage(thermalImage, true);
+            if (initialFrameOffset > 0) {
+                initialFrameOffset--;
+            } else {
+                ThermalImageAndroid thermalImage = new ThermalImageAndroid(lastVisualImages.poll(), image.thermalPixelValues(), range, generateMode());
+                client.sendImage(thermalImage, true);
+            }
         }
     }
 
