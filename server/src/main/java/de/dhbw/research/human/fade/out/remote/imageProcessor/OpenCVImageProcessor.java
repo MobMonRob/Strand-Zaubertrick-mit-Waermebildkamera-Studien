@@ -49,7 +49,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
         Imgproc.findContours(mask, contour, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
         Imgproc.drawContours(mask, contour, -1, new Scalar(255), 40);
 
-        Photo.inpaint(mat, mask, mat, 5, Photo.INPAINT_NS);
+        Photo.inpaint(mat, mask, mat, 1, Photo.INPAINT_NS);
 //        mat.copyTo(mask, mat);
 
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
