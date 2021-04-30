@@ -13,8 +13,6 @@ from python_remote_processor.util import VideoCreator, save_image
 
 
 class AIImageProcessor(ImageProcessor):
-    convert_to_cv_mask = np.vectorize(lambda value: np.array([255, 255, 255] if value else [0, 0, 0], dtype=np.uint8),
-                                      otypes=[np.ndarray])
 
     def __init__(self, checkpoint_dir, use_gpu=False, preview_socket_name=None):
         self.video_creator = VideoCreator()
@@ -55,9 +53,14 @@ class AIImageProcessor(ImageProcessor):
         image = cv2.cvtColor(np.array(thermal_image.image), cv2.COLOR_RGB2BGR)
 
         mask = thermal_image.thermal_mask
+
         mask = mask.reshape(thermal_image.height, thermal_image.width)
         mask = increase_mask(mask)
-        mask = np.hstack(self.convert_to_cv_mask(mask).flatten())
+
+        mask = np.where(mask, 255, 0).reshape(1, mask.size)
+        mask = np.concatenate((mask, mask, mask), axis=0)
+        mask = np.transpose(mask)
+
         mask = mask.reshape(thermal_image.height, thermal_image.width, 3)
 
         # mask = cv2.resize(mask, (0,0), fx=0.5, fy=0.5)
@@ -74,7 +77,7 @@ class AIImageProcessor(ImageProcessor):
         result = self.sess.run(self.output, feed_dict={self.input_image_ph: input_image})
         result = result[0][:, :, ::-1]
 
-        if self.preview_socket is not None:
+        if hasattr(self, 'preview_socket'):
             self.preview_socket.send(pickle.dumps(result))
         else:
             cv2.imshow("inpainted Image", result)
