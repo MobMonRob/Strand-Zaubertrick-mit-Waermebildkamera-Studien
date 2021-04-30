@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
         lowerTemperatureView.setText(String.format(getString(R.string.temperature_current_value), lowerTemperature));
 
         upperTemperatureView = findViewById(R.id.upper_temperature);
-        float upperTemperature = (sharedPreferences.getInt(getString(R.string.upper_temperature_value_key), 30815) - 27315) / 100F;
+        float upperTemperature = (sharedPreferences.getInt(getString(R.string.upper_temperature_value_key), 31815) - 27315) / 100F;
         upperTemperatureView.setText(String.format(getString(R.string.temperature_current_value), upperTemperature));
 
         RangeBar rangeBar = findViewById(R.id.temperature_seek);

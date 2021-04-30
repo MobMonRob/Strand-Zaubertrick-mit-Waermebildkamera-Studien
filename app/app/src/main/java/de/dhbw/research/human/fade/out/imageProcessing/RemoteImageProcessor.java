@@ -78,8 +78,8 @@ public class RemoteImageProcessor implements ImageProcessor, SharedPreferences.O
     }
 
     private void updateRange() {
-        int minTemperature = sharedPreferences.getInt(activity.getString(R.string.lower_temperature_value_key), 30065);
-        int maxTemperature = sharedPreferences.getInt(activity.getString(R.string.upper_temperature_value_key), 30085);
+        int minTemperature = sharedPreferences.getInt(activity.getString(R.string.lower_temperature_value_key), 29815);
+        int maxTemperature = sharedPreferences.getInt(activity.getString(R.string.upper_temperature_value_key), 31815);
 
         range = new TemperatureRange(minTemperature, maxTemperature);
     }
