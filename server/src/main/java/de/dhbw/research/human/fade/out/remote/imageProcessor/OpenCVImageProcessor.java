@@ -39,8 +39,8 @@ public class OpenCVImageProcessor implements ImageProcessor {
 
 
         byte[] maskData = Bytes.toArray(Arrays.stream(image.getBooleanThermalMask())
-                                   .map(value -> (byte) (value ? 255 : 0))
-                                   .collect(Collectors.toList()));
+                                              .map(value -> (byte) (value ? 255 : 0))
+                                              .collect(Collectors.toList()));
 
         Mat mask = new Mat(image.getHeight(), image.getWidth(), CvType.CV_8UC1);
         mask.put(0, 0, maskData);
@@ -56,7 +56,11 @@ public class OpenCVImageProcessor implements ImageProcessor {
         byte[] data = ((DataBufferByte) result.getRaster().getDataBuffer()).getData();
         mat.get(0, 0, data);
 
-        previewFrame.updatePreview(image.getBufferedImage(), image.getBufferedImage(), result);
+        int[] maskDataImage = Arrays.stream(image.getBooleanThermalMask()).mapToInt(value -> value ? 0x00ffffff : 0).toArray();
+        BufferedImage maskImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+        maskImage.setRGB(0, 0, image.getWidth(), image.getHeight(), maskDataImage, 0, image.getWidth());
+
+        previewFrame.updatePreview(image.getBufferedImage(), maskImage, result);
 
         if (image.shouldTakePhoto()) {
             ImageWriter.write(result);
