@@ -10,14 +10,6 @@ import java.io.IOException;
 // Image dimensions must be multiple of 8
 public class ThermalImageAndroid extends ThermalImage {
 
-    public static final byte MODE_NONE = 0;
-    public static final byte MODE_RESET = 1;
-    public static final byte MODE_CAPTURE = 2;
-    public static final byte MODE_PHOTO = 4;
-
-    private final byte mode;
-
-    private byte[] thermalMask;
     private Bitmap bitmap;
 
     public ThermalImageAndroid(Bitmap bitmap, int[] thermalData, TemperatureRange range, byte mode) {
