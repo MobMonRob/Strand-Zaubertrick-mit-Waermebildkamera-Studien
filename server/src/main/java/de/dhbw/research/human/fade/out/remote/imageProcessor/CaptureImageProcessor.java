@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class CaptureImageProcessor implements ImageProcessor{
+public class CaptureImageProcessor implements ImageProcessor {
 
     private final DataOutputStream outputStream;
 

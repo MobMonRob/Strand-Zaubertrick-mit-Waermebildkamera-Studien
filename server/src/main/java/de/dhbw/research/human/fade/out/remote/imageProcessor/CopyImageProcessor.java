@@ -24,6 +24,7 @@ public class CopyImageProcessor implements ImageProcessor {
 
     private static final int SKIP_COLOR = -16742656;
     private static final int THREAD_COUNT = 10;
+    private static final int RADIUS = 2;
 
     public CopyImageProcessor() {
         previewFrame = new PreviewFrame();
@@ -43,7 +44,7 @@ public class CopyImageProcessor implements ImageProcessor {
         updateBackgroundImage(pixels, image.getBooleanThermalMask(), image.shouldReset());
 
 
-        replaceSections(pixels, image.getBooleanThermalMask());
+        replaceSections(pixels, image.getBooleanThermalMask(), image.getWidth());
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
         result.setRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
 
@@ -87,10 +88,10 @@ public class CopyImageProcessor implements ImageProcessor {
         return thermalCount / (double) mask.length;
     }
 
-    private void replaceSections(int[] image, Boolean[] mask) {
+    private void replaceSections(int[] image, Boolean[] mask, int width) {
         int sectionSize = image.length / THREAD_COUNT;
         List<Thread> threads = IntStream.range(0, THREAD_COUNT)
-                                        .mapToObj(i -> new Thread(() -> replaceSection(sectionSize * i, sectionSize * (i + 1), image, mask)))
+                                        .mapToObj(i -> new Thread(() -> replaceSection(sectionSize * i, sectionSize * (i + 1), image, mask, width)))
                                         .collect(Collectors.toList());
         threads.forEach(Thread::start);
         threads.forEach(thread -> {
@@ -102,12 +103,25 @@ public class CopyImageProcessor implements ImageProcessor {
         });
     }
 
-    private void replaceSection(int start, int end, int[] image, Boolean[] mask) {
+    private void replaceSection(int start, int end, int[] image, Boolean[] mask, int width) {
         for (int i = start; i < end; i++) {
-            if (mask[i]) {
+            if (checkWithRadius(i, mask, width)) {
                 image[i] = backgroundImage[i];
             }
         }
+    }
+
+    private boolean checkWithRadius(int pos, Boolean[] mask, int width) {
+        for (int x = -RADIUS; x < RADIUS; x++) {
+            for (int y = -RADIUS + Math.abs(x); y < RADIUS - Math.abs(x); y++) {
+                int index = pos + x + y * width;
+                index = index < 0 ? index + mask.length : index % mask.length;
+                if (mask[index]) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
