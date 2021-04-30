@@ -8,57 +8,52 @@ import java.io.IOException;
 public class ImageCompare {
 
 
-    public static void compareImages(int[] referenceImage, int[] mask, int[] image) {
-        ImageDifference completeDifference = new ImageDifference();
-        ImageDifference maskedDifference = new ImageDifference();
-        ImageDifference nonMaskedDifference = new ImageDifference();
+    public static void compareImages(int[] referenceImage, int[] image) {
+        ImageDifference difference = new ImageDifference();
+        int[] diffData = new int[referenceImage.length];
 
         for (int i = 0; i < referenceImage.length; i++) {
-            PixelProperties properties = new PixelProperties(referenceImage[i], mask[i], image[i]);
-
-            completeDifference.update(properties);
-            if (properties.isMasked()) {
-                maskedDifference.update(properties);
-            } else {
-                nonMaskedDifference.update(properties);
+            PixelProperties properties = new PixelProperties(referenceImage[i], image[i]);
+            difference.update(properties);
+            if (difference.getPixelsOffInPercent()>10) {
+                diffData[i] = 0xff0000;
+            }else {
+                diffData[i] = 0x0000ff;
             }
         }
-        System.out.println(completeDifference.getPixelsOffInPercent());
-        System.out.println(completeDifference.getPixelsOff5InPercent());
-        System.out.println(completeDifference.getPixelsOff10InPercent());
-        System.out.println(completeDifference.getDifferingRGBInPercent());
-        System.out.println(completeDifference.getDifferingHSV_HInPercent());
-        System.out.println(completeDifference.getDifferingHSV_SInPercent());
-        System.out.println(completeDifference.getDifferingHSV_VInPercent());
-        System.out.println();
-        System.out.println(maskedDifference.getPixelsOffInPercent());
-        System.out.println(maskedDifference.getPixelsOff5InPercent());
-        System.out.println(maskedDifference.getPixelsOff10InPercent());
-        System.out.println(maskedDifference.getDifferingRGBInPercent());
-        System.out.println(maskedDifference.getDifferingHSV_HInPercent());
-        System.out.println(maskedDifference.getDifferingHSV_SInPercent());
-        System.out.println(maskedDifference.getDifferingHSV_VInPercent());
-        System.out.println();
-        System.out.println(nonMaskedDifference.getPixelsOffInPercent());
-        System.out.println(nonMaskedDifference.getPixelsOff5InPercent());
-        System.out.println(nonMaskedDifference.getPixelsOff10InPercent());
-        System.out.println(nonMaskedDifference.getDifferingRGBInPercent());
-        System.out.println(nonMaskedDifference.getDifferingHSV_HInPercent());
-        System.out.println(nonMaskedDifference.getDifferingHSV_SInPercent());
-        System.out.println(nonMaskedDifference.getDifferingHSV_VInPercent());
+        BufferedImage diffImg = new BufferedImage(480, 640, BufferedImage.TYPE_INT_RGB);
+        diffImg.setRGB(0, 0, 480, 640, diffData, 0, 480);
+        System.out.println(difference.getPixelsOffInPercent() +
+                           " - " +
+                           difference.getPixelsOff5InPercent() +
+                           " - " +
+                           difference.getPixelsOff10InPercent());
     }
 
     public static void main(String[] args) throws IOException {
 
-        BufferedImage refImage = ImageIO.read(new File("./images/example.jpg"));
+        BufferedImage refImage = ImageIO.read(new File("./test-background1.jpg"));
         int[] refData = refImage.getRGB(0, 0, refImage.getWidth(), refImage.getHeight(), null, 0, refImage.getWidth());
 
-        BufferedImage mask = ImageIO.read(new File("./images/example-mask3.jpg"));
-        int[] maskData = mask.getRGB(0, 0, mask.getWidth(), mask.getHeight(), null, 0, mask.getWidth());
+        BufferedImage refImage2 = ImageIO.read(new File("./test-background2.jpg"));
+        int[] refData2 = refImage2.getRGB(0, 0, refImage2.getWidth(), refImage2.getHeight(), null, 0, refImage2.getWidth());
 
-        BufferedImage image = ImageIO.read(new File("./images/example-modified3.jpg"));
-        int[] data = image.getRGB(0, 0, image.getWidth(), image.getHeight(), null, 0, image.getWidth());
+        File dir = new File("./ai");
+        for (int i = 0; i < dir.list().length; i++) {
+            BufferedImage image = ImageIO.read(new File(dir.getAbsolutePath() + "/image-" + i + ".jpg"));
+            int[] data = image.getRGB(0, 0, image.getWidth(), image.getHeight(), null, 0, image.getWidth());
 
-        compareImages(refData, maskData, data);
+            if (i >= 0 && i <= 20) {
+                compareImages(refData, data);
+            } else if (i >= 21 && i <= 51) {
+                compareImages(refData2, data);
+            } else if (i >= 52 && i < 82) {
+                compareImages(refData, data);
+            } else if (i >= 82 && i <= 107) {
+                compareImages(refData2, data);
+            } else {
+                compareImages(refData, data);
+            }
+        }
     }
 }
