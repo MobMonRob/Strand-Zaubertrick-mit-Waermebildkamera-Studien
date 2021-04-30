@@ -1,15 +1,10 @@
 package de.dhbw.research.human.fade.out.remote.server;
 
-import de.dhbw.research.human.fade.out.remote.imageProcessor.CaptureImageProcessor;
-import de.dhbw.research.human.fade.out.remote.imageProcessor.CopyImageProcessor;
 import de.dhbw.research.human.fade.out.remote.imageProcessor.ImageProcessor;
 import de.dhbw.research.human.fade.out.remote.thermalImage.ThermalImageJava;
-import nu.pattern.OpenCV;
-import org.opencv.core.Core;
 
 import java.io.DataInputStream;
 import java.io.EOFException;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -103,21 +98,5 @@ public class Server {
             System.out.println("Error while closing server:");
             e.printStackTrace();
         }
-    }
-
-    public static void main(String[] args) throws FileNotFoundException {
-        Server server;
-        ImageProcessor imageProcessor;
-
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        OpenCV.loadShared();
-        imageProcessor = new CopyImageProcessor();
-
-        if (args.length == 2 && args[0].equals("record")) {
-            server = new Server(4444, imageProcessor, new CaptureImageProcessor(args[1]));
-        } else {
-            server = new Server(4444, imageProcessor);
-        }
-        server.start();
     }
 }
