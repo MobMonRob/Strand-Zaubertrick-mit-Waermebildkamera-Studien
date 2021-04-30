@@ -66,7 +66,7 @@ public class VideoCreator {
 
     public void save() {
         synchronized (actionQueue) {
-            actionQueue.add(() -> videoWriter.release());
+            actionQueue.add(videoWriter::release);
             actionQueue.notify();
         }
     }
