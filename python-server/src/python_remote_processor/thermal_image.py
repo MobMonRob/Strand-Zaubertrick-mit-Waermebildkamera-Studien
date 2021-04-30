@@ -58,7 +58,7 @@ class ThermalImage:
                 (byte & 1) != 0]
 
 
-RADIUS = 2
+RADIUS = 10
 
 
 @numba.stencil(neighborhood=((-RADIUS, RADIUS), (-RADIUS, RADIUS)))
