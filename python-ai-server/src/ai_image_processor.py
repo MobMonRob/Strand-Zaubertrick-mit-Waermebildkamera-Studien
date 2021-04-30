@@ -8,7 +8,7 @@ import pickle
 import timeit
 
 from generative_inpainting.inpaint_model import InpaintCAModel
-from python_remote_processor.thermal_image import ThermalImage, increase_mask
+from python_remote_processor.thermal_image import ThermalImage
 from python_remote_processor.image_processor import ImageProcessor
 from python_remote_processor.util import VideoCreator, save_image
 
@@ -63,14 +63,13 @@ class AIImageProcessor(ImageProcessor):
 
         mask = thermal_image.thermal_mask
 
-        mask = mask.reshape(thermal_image.height, thermal_image.width)
-        mask = increase_mask(mask)
-
         mask = np.where(mask, 255, 0).reshape(1, mask.size)
-        mask = np.concatenate((mask, mask, mask), axis=0)
-        mask = np.transpose(mask)
+        mask = mask.reshape(thermal_image.height, thermal_image.width, 1).astype(np.uint8)
+        mask = np.concatenate((mask, mask, mask), axis=2)
 
-        mask = mask.reshape(thermal_image.height, thermal_image.width, 3)
+        edged = cv2.Canny(mask, 30, 200)
+        contours, hierarchy = cv2.findContours(edged, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        cv2.drawContours(mask, contours, -1, (255, 255, 255), 40)
 
         # mask = cv2.resize(mask, (0,0), fx=0.5, fy=0.5)
 
