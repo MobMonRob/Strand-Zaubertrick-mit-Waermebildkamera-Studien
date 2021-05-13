@@ -103,3 +103,4 @@ class AIImageProcessor(ImageProcessor):
 
     def on_connection_closed(self):
         self.video_creator.save()
+        self.recording = False
