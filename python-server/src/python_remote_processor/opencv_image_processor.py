@@ -41,4 +41,6 @@ class OpenCvImageProcessor(ImageProcessor):
             self.recording = False
 
     def on_connection_closed(self):
+        print("Connection closed")
         self.video_creator.save()
+        self.recording = False
