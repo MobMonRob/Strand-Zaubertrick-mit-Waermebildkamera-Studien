@@ -26,7 +26,7 @@ public class OpenCVImageProcessor implements ImageProcessor {
     public OpenCVImageProcessor() {
         previewFrame = new PreviewFrame();
         previewFrame.setVisible(true);
-        videoCreator = new VideoCreator(2, new Size(480, 640));
+        videoCreator = new VideoCreator(5, new Size(480, 640));
     }
 
     @Override

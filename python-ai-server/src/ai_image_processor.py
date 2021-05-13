@@ -18,7 +18,7 @@ MEASURE_PROCESSING_TIME = True
 class AIImageProcessor(ImageProcessor):
 
     def __init__(self, checkpoint_dir, use_gpu=False, preview_socket_name=None):
-        self.video_creator = VideoCreator()
+        self.video_creator = VideoCreator(fps=5)
         if preview_socket_name is not None:
             self.preview_socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             self.preview_socket.connect(preview_socket_name)
@@ -102,5 +102,6 @@ class AIImageProcessor(ImageProcessor):
             self.recording = False
 
     def on_connection_closed(self):
+        print("Connection closed")
         self.video_creator.save()
         self.recording = False

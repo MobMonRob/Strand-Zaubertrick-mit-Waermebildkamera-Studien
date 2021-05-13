@@ -29,7 +29,7 @@ public class CopyImageProcessor implements ImageProcessor {
     public CopyImageProcessor() {
         previewFrame = new PreviewFrame();
         previewFrame.setVisible(true);
-        videoCreator = new VideoCreator(10, new Size(480, 640));
+        videoCreator = new VideoCreator(5, new Size(480, 640));
     }
 
     @Override
