@@ -24,7 +24,7 @@ public class CopyImageProcessor implements ImageProcessor {
 
     private static final int SKIP_COLOR = -16742656;
     private static final int THREAD_COUNT = 10;
-    private static final int RADIUS = 2;
+    private static final int RADIUS = 10;
 
     public CopyImageProcessor() {
         previewFrame = new PreviewFrame();
@@ -127,5 +127,6 @@ public class CopyImageProcessor implements ImageProcessor {
     @Override
     public void onConnectionClosed() {
         videoCreator.save();
+        recording = false;
     }
 }

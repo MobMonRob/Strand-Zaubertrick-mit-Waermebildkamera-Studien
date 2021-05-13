@@ -80,5 +80,6 @@ public class OpenCVImageProcessor implements ImageProcessor {
     @Override
     public void onConnectionClosed() {
         videoCreator.save();
+        recording = false;
     }
 }
