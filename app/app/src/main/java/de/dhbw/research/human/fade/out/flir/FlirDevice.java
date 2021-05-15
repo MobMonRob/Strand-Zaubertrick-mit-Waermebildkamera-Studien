@@ -26,13 +26,13 @@ public class FlirDevice implements Device.Delegate, Device.StreamDelegate, Devic
     private Device flirDevice = null;
     private ImageProcessor imageProcessor;
 
-    private Instant lastReceived = Instant.now();
+    private Instant lastFrameReceived = Instant.now();
+    private Instant lastFrameProcessed = Instant.now();
 
 
     public FlirDevice(Activity activity) {
         this.activity = activity;
         this.frameProcessor = new FrameProcessor(activity, this, EnumSet.of(RenderedImage.ImageType.ThermalRadiometricKelvinImage, RenderedImage.ImageType.VisibleAlignedRGBA8888Image));
-//        imageProcessor = new MaskedImageProcessor((ImageView) activity.findViewById(R.id.image));
         imageProcessor = new RemoteImageProcessor();
     }
 
@@ -96,9 +96,9 @@ public class FlirDevice implements Device.Delegate, Device.StreamDelegate, Devic
             frameProcessor.processFrame(frame, FrameProcessor.QueuingOption.CLEAR_QUEUED);
             if (BuildConfig.DEBUG) {
                 Instant currentReceived = Instant.now();
-                long elapsedMilliseconds = Duration.between(lastReceived, currentReceived).toMillis();
-                Log.d("TIME-CAPTURE", "Time - Receive: " + (1000F / elapsedMilliseconds) + " FPS");
-                lastReceived = currentReceived;
+                long elapsedMilliseconds = Duration.between(lastFrameReceived, currentReceived).toMillis();
+                Log.d("TIME-CAPTURE-FRAME", "Time - Receive: " + (1000F / elapsedMilliseconds) + " FPS, " + elapsedMilliseconds + " ms");
+                lastFrameReceived = currentReceived;
             }
 
         }
@@ -117,5 +117,11 @@ public class FlirDevice implements Device.Delegate, Device.StreamDelegate, Devic
     @Override
     public void onFrameProcessed(final RenderedImage renderedImage) {
         imageProcessor.processImage(renderedImage);
+        if (BuildConfig.DEBUG) {
+            Instant currentProcessed = Instant.now();
+            long elapsedMilliseconds = Duration.between(lastFrameProcessed, currentProcessed).toMillis();
+            Log.d("TIME-PROCESS-FRAME", "Time - Receive: " + (1000F / elapsedMilliseconds) + " FPS, " + elapsedMilliseconds + " ms");
+            lastFrameProcessed = currentProcessed;
+        }
     }
 }
