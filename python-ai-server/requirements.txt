@@ -1,0 +1,29 @@
+absl-py==0.12.0
+astor==0.8.1
+gast==0.2.2
+google-pasta==0.2.0
+grpcio==1.37.0
+h5py==2.10.0
+importlib-metadata==3.10.0
+Keras-Applications==1.0.8
+Keras-Preprocessing==1.1.2
+llvmlite==0.36.0
+Markdown==3.3.4
+neuralgym @ git+https://github.com/JiahuiYu/neuralgym@88292adb524186693a32404c0cfdc790426ea441
+numba==0.53.1
+numpy==1.18.5
+opencv-contrib-python==4.5.1.48
+opt-einsum==3.3.0
+Pillow==8.2.0
+protobuf==3.15.8
+python-remote-processor @ file:///home/marlon/Projekte/github.com/MobMonRob/Strand-Zaubertrick-mit-Waermebildkamera-Studien/python-server
+PyYAML==5.4.1
+six==1.15.0
+tensorboard==1.15.0
+tensorflow==1.15.5
+tensorflow-estimator==1.15.1
+termcolor==1.1.0
+typing-extensions==3.7.4.3
+Werkzeug==1.0.1
+wrapt==1.12.1
+zipp==3.4.1
